@@ -1,0 +1,38 @@
+{
+	"folders":
+	[
+		{
+			"path":"C:/Users/Kap/Desktop/The Hut/Robotics/2016 - 2017/Code/include",
+			"name":"Include Files"
+		},
+		{
+			"path":"C:/Users/Kap/Desktop/The Hut/Robotics/2016 - 2017/Code/src",
+			"name":"Source Files",
+			"file_exclude_patterns":[
+             	"Makefile"
+          	]
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name":"PROS",
+			"working_dir":"C:/Users/Kap/Desktop/The Hut/Robotics/2016 - 2017/Code",
+			"cmd":["make"],
+            "variants":[
+                { "cmd":["make", "clean"],
+			      "name":"Clean"
+                },
+                { "cmd":["make", "upload"],
+                  "name":"Upload"
+                },
+				{ "cmd":["make", "upload"],
+                  "name":"Run"
+                },
+				{ "cmd":["make", "upload_user"],
+                  "name":"Upload Preserving Filesystem"
+                }
+            ]
+        }
+	]
+}
