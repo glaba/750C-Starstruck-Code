@@ -7,32 +7,14 @@
  * include main.h instead of referencing API.h by name, to better handle any nomenclature
  * changes to this file or its contents.
  *
- * Copyright (c) 2011-2014, Purdue University ACM SIG BOTS.
+ * Copyright (c) 2011-2016, Purdue University ACM SIGBots.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Purdue University ACM SIG BOTS nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL PURDUE UNIVERSITY ACM SIG BOTS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Purdue Robotics OS contains FreeRTOS (http://www.freertos.org) whose source code may be
+ * PROS contains FreeRTOS (http://www.freertos.org) whose source code may be
  * obtained from http://sourceforge.net/projects/freertos/files/ or on request.
  */
 
@@ -43,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 // Begin C++ extern to C
 #ifdef __cplusplus
@@ -701,6 +684,57 @@ Ultrasonic ultrasonicInit(unsigned char portEcho, unsigned char portPing);
  */
 void ultrasonicShutdown(Ultrasonic ult);
 
+// -------------------- Custom sensor control functions --------------------
+
+// ---- I2C port control ----
+/**
+ * i2cRead - Reads the specified number of data bytes from the specified 7-bit I2C address. The
+ * bytes will be stored at the specified location. Returns true if successful or false if
+ * failed. If only some bytes could be read, false is still returned.
+ *
+ * The I2C address should be right-aligned; the R/W bit is automatically supplied.
+ *
+ * Since most I2C devices use an 8-bit register architecture, this method has limited
+ * usefulness. Consider i2cReadRegister instead for the vast majority of applications.
+ */
+bool i2cRead(uint8_t addr, uint8_t *data, uint16_t count);
+/**
+ * i2cReadRegister - Reads the specified amount of data from the given register address on
+ * the specified 7-bit I2C address. Returns true if successful or false if failed. If only some
+ * bytes could be read, false is still returned.
+ *
+ * The I2C address should be right-aligned; the R/W bit is automatically supplied.
+ *
+ * Most I2C devices support an auto-increment address feature, so using this method to read
+ * more than one byte will usually read a block of sequential registers. Try to merge reads to
+ * separate registers into a larger read using this function whenever possible to improve code
+ * reliability, even if a few intermediate values need to be thrown away.
+ */
+bool i2cReadRegister(uint8_t addr, uint8_t reg, uint8_t *value, uint16_t count);
+/**
+ * i2cWrite - Writes the specified number of data bytes to the specified 7-bit I2C address.
+ * Returns true if successful or false if failed. If only smoe bytes could be written, false
+ * is still returned.
+ *
+ * The I2C address should be right-aligned; the R/W bit is automatically supplied.
+ *
+ * Since most I2C devices use an 8-bit register architecture, this method is mostly useful for
+ * setting the register position (most devices remember the last-used address) or writing a
+ * sequence of bytes to one register address using an auto-increment feature. In these cases,
+ * the first byte written from the data buffer should have the register address to use.
+ */
+bool i2cWrite(uint8_t addr, uint8_t *data, uint16_t count);
+/**
+ * i2cWriteRegister - Writes the specified data byte to a register address on the specified
+ * 7-bit I2C address. Returns true if successful or false if failed.
+ *
+ * The I2C address should be right-aligned; the R/W bit is automatically supplied.
+ *
+ * Only one byte can be written to each register address using this method. While useful for
+ * the vast majority of I2C operations, writing multiple bytes requires the i2cWrite method.
+ */
+bool i2cWriteRegister(uint8_t addr, uint8_t reg, uint16_t value);
+
 /**
  * FILE is an integer referring to a stream for the standard I/O functions.
  *
@@ -1311,7 +1345,7 @@ void taskDelay(const unsigned long msToDelay);
  * This function should be used by cyclical tasks to ensure a constant execution frequency.
  * While taskDelay() specifies a wake time relative to the time at which the function is
  * called, taskDelayUntil() specifies the absolute future time at which it wishes to unblock.
- * Calling taskDelayUntil with the same cycleTime parameter value in a loop, with 
+ * Calling taskDelayUntil with the same cycleTime parameter value in a loop, with
  * previousWakeTime referring to a local variable initialized to millis(), will cause the
  * loop to execute with a fixed period.
  *
