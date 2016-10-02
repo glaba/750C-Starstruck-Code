@@ -21,7 +21,7 @@ CPPSRC:=$(wildcard *.$(CPPEXT))
 CPPOBJ:=$(patsubst %.o,$(BINDIR)/%.o,$(CPPSRC:.$(CPPEXT)=.o))
 OUT:=$(BINDIR)/$(OUTNAME)
 
-.PHONY: all clean upload upload_user _force_look
+.PHONY: all clean upload _force_look
 
 # By default, compile program
 all: $(BINDIR) $(OUT)
@@ -34,10 +34,6 @@ clean:
 # Uploads program to device
 upload: all
 	$(UPLOAD)
-
-# Uploads, clearing user section only
-upload_user: all
-	$(UPLOAD) -user
 
 # Phony force-look target
 _force_look:
@@ -66,7 +62,7 @@ $(ASMOBJ): $(BINDIR)/%.o: %.$(ASMEXT) $(HEADERS)
 # Object management
 $(COBJ): $(BINDIR)/%.o: %.$(CEXT) $(HEADERS)
 	@echo CC $(INCLUDE) $<
-	@$(CC) $(INCLUDE) $(CFLAGS) -o $@ $<
+	$(CC) $(INCLUDE) $(CFLAGS) -o $@ $<
 
 $(CPPOBJ): $(BINDIR)/%.o: %.$(CPPEXT) $(HEADERS)
 	@echo CPC $(INCLUDE) $<
