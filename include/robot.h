@@ -1,10 +1,6 @@
-/** @file robot.h
- * @brief Header file for motor port definitions, sensor port definitions, and basic movement functions
- */
-
 #ifndef ROBOT_H_
 
-// This prevents multiple inclusion
+// This prevents multiple inclusion, which isn't bad for this file but is good practice
 #define ROBOT_H_
 
 #include <API.h>
@@ -14,26 +10,31 @@
 extern "C" {
 #endif
 
-// Motor port definitions
-#define FRONT_LEFT_MOTOR 0
-#define FRONT_RIGHT_MOTOR 1
-#define BACK_LEFT_MOTOR 2
-#define BACK_RIGHT_MOTOR 3
+#define LIFT_BOTTOM_RIGHT_MOTOR 5
+#define LIFT_TOP_RIGHT_MOTOR 6
+#define LIFT_BOTTOM_LEFT_MOTOR 7
+#define LIFT_TOP_LEFT_MOTOR 8
 
-// Drive motion function: motion is an array of: forwards, right, clockwise from -127 to 127
-void moveRobot(int* motion) {
-	motorSet(FRONT_LEFT_MOTOR, motion[0] + motion[1] + motion[2]);
-	motorSet(FRONT_RIGHT_MOTOR, -motion[0] + motion[1] + motion[2]);
-	motorSet(BACK_LEFT_MOTOR, motion[0] - motion[1] + motion[2]);
-	motorSet(BACK_RIGHT_MOTOR, -motion[0] - motion[1] + motion[2]);
+#define SHOOTER_BACK_LEFT_MOTOR 9
+#define SHOOTER_FRONT_LEFT_MOTOR 10
+#define SHOOTER_BACK_RIGHT_MOTOR 11
+#define SHOOTER_FRONT_RIGHT_MOTOR 12
+
+#define MOTOR_SPEED 127
+inline void setShooterMotors(int speedVariant){
+  motorSet(SHOOTER_BACK_LEFT_MOTOR, -speedVariant * MOTOR_SPEED);
+  motorSet(SHOOTER_FRONT_LEFT_MOTOR, -speedVariant * MOTOR_SPEED);
+  motorSet(SHOOTER_BACK_RIGHT_MOTOR, speedVariant * MOTOR_SPEED);
+  motorSet(SHOOTER_FRONT_RIGHT_MOTOR, speedVariant * MOTOR_SPEED);
 }
 
-void moveRobotFromJoystick() {
-	int motion[3] = {joystickGetAnalog(1, 3), joystickGetAnalog(1, 4), joystickGetAnalog(1, 1)};
-	moveRobot(motion);
+inline void setLiftMotors(int speedVariant) {
+  motorSet(LIFT_BOTTOM_RIGHT_MOTOR, -speedVariant * MOTOR_SPEED);
+  motorSet(LIFT_TOP_RIGHT_MOTOR, speedVariant * MOTOR_SPEED);
+  motorSet(LIFT_BOTTOM_LEFT_MOTOR, speedVariant * MOTOR_SPEED);
+  motorSet(LIFT_TOP_LEFT_MOTOR, -speedVariant * MOTOR_SPEED);
 }
 
-// End C++ export structure
 #ifdef __cplusplus
 }
 #endif

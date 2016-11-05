@@ -11,52 +11,7 @@
  */
 
 #include "main.h"
-#include "events.h"
-
-// Variable containing the up or down state for all joystick buttons; Array indices: joystick number, button group starting from 5, button type (top, bottom, etc)
-bool joystickStates[2][4][4];
-
-// Initializes joystickStates to unpressed by default
-void initializeJoystickStates() {
-	for (int joystick = 1; joystick <= 2; joystick++) {
-		for (int buttonGroup = 5; buttonGroup <= 8; buttonGroup++) {
-			for (int button = 1; button <= 4; button++) {
-				joystickStates[joystick - 1][buttonGroup - 5][button - 1] = false;
-			}
-		}
-	}
-}
-
-// Updates joystickStates based on current value and calls events if the values change
-void updateJoystickStates() {
-	for (int joystick = 1; joystick <= 2; joystick++) {
-		for (int buttonGroup = 5; buttonGroup <= 8; buttonGroup++) {
-			for (int button = 1; button <= 4; button++) {
-				bool curValue = joystickGetDigital(joystick, buttonGroup, button);
-				if (joystickStates[joystick - 1][buttonGroup - 5][button - 1] != curValue) {
-					// Call event handler
-					eventHandlerP curHandler = buttonEventHandlers[joystick - 1][buttonGroup - 5][button - 1][curValue];
-					if (curHandler)
-						curHandler(buttonEventHandlerParameters[joystick - 1][buttonGroup - 5][button - 1][curValue]);
-
-					// Update joystick state value
-					joystickStates[joystick - 1][buttonGroup - 5][button - 1] = curValue;
-				}
-			}
-		}
-	}
-}
-
-// Runs all the timed events
-void runTimedEvents() {
-	for (int i = 0; i < NUM_TIMED_EVENTS; i++) {
-		if (timedEventHandlers[i])
-			timedEventHandlers[i]();
-		else
-			return;
-	}
-}
-
+#include "robot.h"
 /*
  * Runs the user operator control code. This function will be started in its own task with the
  * default priority and stack size whenever the robot is enabled via the Field Management System
@@ -74,12 +29,63 @@ void runTimedEvents() {
  *
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
-void operatorControl() {
-	initializeJoystickStates();
 
-	while (true) {
-		updateJoystickStates();
-		runTimedEvents();
+#define FRONT_LEFT_MOTOR 1
+#define FRONT_RIGHT_MOTOR 2
+#define BACK_LEFT_MOTOR 3
+#define BACK_RIGHT_MOTOR 4
+
+#define LIFT_BOTTOM_RIGHT_MOTOR 5
+#define LIFT_TOP_RIGHT_MOTOR 6
+#define LIFT_BOTTOM_LEFT_MOTOR 7
+#define LIFT_TOP_LEFT_MOTOR 8
+
+#define SHOOTER_BACK_LEFT_MOTOR 9
+#define SHOOTER_FRONT_LEFT_MOTOR 10
+#define SHOOTER_BACK_RIGHT_MOTOR 11
+#define SHOOTER_FRONT_RIGHT_MOTOR 12
+
+#define MOTOR_SPEED 127
+
+void moveRobot() {
+	int forward = joystickGetAnalog(1, 3);
+	int right = joystickGetAnalog(1, 4);
+	int turn = joystickGetAnalog(1, 1);
+
+	motorSet(FRONT_LEFT_MOTOR, forward + right + turn);
+	motorSet(FRONT_RIGHT_MOTOR, -forward + right + turn);
+	motorSet(BACK_LEFT_MOTOR, forward - right + turn);
+	motorSet(BACK_RIGHT_MOTOR, -forward - right + turn);
+}
+
+void moveLift() {
+	bool upPressed = joystickGetDigital(1, 6, JOY_UP);
+	bool downPressed =  joystickGetDigital(1, 6, JOY_DOWN);
+
+	if (upPressed) {
+		setLiftMotors(-1);
+	} else if (downPressed) {
+		setLiftMotors(1);
+	} else {
+		setLiftMotors(0);
+	}
+}
+
+void moveShooter(){
+	bool upPressed = joystickGetDigital(1, 7, JOY_UP);
+	bool downPressed = joystickGetDigital(1, 7, JOY_DOWN);
+
+	if (upPressed){
+		setShooterMotors(1);
+	} else if (downPressed){
+		setShooterMotors(-1);
+	}
+}
+void operatorControl() {
+	while (1) {
+		moveRobot();
+		moveLift();
+		moveShooter();
 		delay(20);
 	}
 }
