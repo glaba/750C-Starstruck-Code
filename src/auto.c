@@ -11,7 +11,7 @@
  */
 
 #include "main.h"
-
+#include "robot.h"
 /*
  * Runs the user autonomous code. This function will be started in its own task with the default
  * priority and stack size whenever the robot is enabled via the Field Management System or the
@@ -27,4 +27,12 @@
  * so, the robot will await a switch to another mode or disable/enable cycle.
  */
 void autonomous() {
+
+  motorSet(FRONT_LEFT_MOTOR, MOTOR_SPEED);
+	motorSet(FRONT_RIGHT_MOTOR, MOTOR_SPEED);
+	motorSet(BACK_LEFT_MOTOR, MOTOR_SPEED);
+	motorSet(BACK_RIGHT_MOTOR, MOTOR_SPEED);
+
+  delay(100);
+
 }

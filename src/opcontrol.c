@@ -30,37 +30,9 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 
-#define FRONT_LEFT_MOTOR 1
-#define FRONT_RIGHT_MOTOR 2
-#define BACK_LEFT_MOTOR 3
-#define BACK_RIGHT_MOTOR 4
-
-#define LIFT_BOTTOM_RIGHT_MOTOR 5
-#define LIFT_TOP_RIGHT_MOTOR 6
-#define LIFT_BOTTOM_LEFT_MOTOR 7
-#define LIFT_TOP_LEFT_MOTOR 8
-
-#define SHOOTER_BACK_LEFT_MOTOR 9
-#define SHOOTER_FRONT_LEFT_MOTOR 10
-#define SHOOTER_BACK_RIGHT_MOTOR 11
-#define SHOOTER_FRONT_RIGHT_MOTOR 12
-
-#define MOTOR_SPEED 127
-
-void moveRobot() {
-	int forward = joystickGetAnalog(1, 3);
-	int right = joystickGetAnalog(1, 4);
-	int turn = joystickGetAnalog(1, 1);
-
-	motorSet(FRONT_LEFT_MOTOR, forward + right + turn);
-	motorSet(FRONT_RIGHT_MOTOR, -forward + right + turn);
-	motorSet(BACK_LEFT_MOTOR, forward - right + turn);
-	motorSet(BACK_RIGHT_MOTOR, -forward - right + turn);
-}
-
-void moveLift() {
-	bool upPressed = joystickGetDigital(1, 6, JOY_UP);
-	bool downPressed =  joystickGetDigital(1, 6, JOY_DOWN);
+void moveLift(int joystick) {
+	bool upPressed = joystickGetDigital(joystick, 6, JOY_UP);
+	bool downPressed =  joystickGetDigital(joystick, 6, JOY_DOWN);
 
 	if (upPressed) {
 		setLiftMotors(-1);
@@ -71,21 +43,27 @@ void moveLift() {
 	}
 }
 
-void moveShooter(){
-	bool upPressed = joystickGetDigital(1, 7, JOY_UP);
-	bool downPressed = joystickGetDigital(1, 7, JOY_DOWN);
+void moveShooter(int joystick){
+	bool upPressed = joystickGetDigital(joystick, 5, JOY_UP);
+	bool downPressed = joystickGetDigital(joystick, 5, JOY_DOWN);
 
 	if (upPressed){
 		setShooterMotors(1);
 	} else if (downPressed){
 		setShooterMotors(-1);
+	} else {
+		setShooterMotors(0);
 	}
+
 }
 void operatorControl() {
 	while (1) {
-		moveRobot();
-		moveLift();
-		moveShooter();
+		moveRobot(1);
+		moveLift(1);
+		moveShooter(1);
+	/*	moveRobot(2);
+		moveLift(2);
+		moveShooter(2);*/
 		delay(20);
 	}
 }
