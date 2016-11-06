@@ -1,6 +1,6 @@
 /** @file main.h
  * @brief Header file for global functions
- * 
+ *
  * Any experienced C or C++ programmer knows the importance of header files. For those who
  * do not, a header file allows multiple files to reference functions in other files without
  * necessarily having to see the code (and therefore causing a multiple definition). To make
@@ -44,11 +44,30 @@
 #define MAIN_H_
 
 #include <API.h>
+#include "autonrecorder.h"
+#include "robot.h"
 
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define LCD_MESSAGE_MAX_LENGTH 20
+#define PRESSED LOW
+#define UNPRESSED HIGH
+
+// Forward motion
+extern int spd;
+// CW rotational motion
+extern int turn;
+// Motion of the dumper
+extern int sht;
+// Lateral strafing motion
+extern int strafe;
+// Left lift motion
+extern int liftL;
+// Right lift motion
+extern int liftR;
 
 //#define AUTO_DEBUG
 
@@ -113,6 +132,12 @@ void initialize();
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 void operatorControl();
+
+// Move the robot based on saved joystick information
+void moveRobot();
+
+// Store joystick information
+void recordJoyInfo();
 
 // End C++ export structure
 #ifdef __cplusplus

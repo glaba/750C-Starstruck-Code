@@ -11,7 +11,6 @@
  */
 
 #include "main.h"
-#include "robot.h"
 /*
  * Runs the user operator control code. This function will be started in its own task with the
  * default priority and stack size whenever the robot is enabled via the Field Management System
@@ -30,40 +29,52 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 
-void moveLift(int joystick) {
-	bool upPressed = joystickGetDigital(joystick, 6, JOY_UP);
-	bool downPressed =  joystickGetDigital(joystick, 6, JOY_DOWN);
+// Forward motion
+int spd;
+// CW rotational motion
+int turn;
+// Motion of the dumper
+int sht;
+// Lateral strafing motion
+int strafe;
+// Left lift motion
+int liftL;
+// Right lift motion
+int liftR;
 
-	if (upPressed) {
-		setLiftMotors(-1);
-	} else if (downPressed) {
-		setLiftMotors(1);
+void recordJoyInfo() {
+	spd = joystickGetAnalog(1, 3);
+	strafe = joystickGetAnalog(1, 4);
+	turn = joystickGetAnalog(1, 1);
+
+	if (joystickGetDigital(1, 5, JOY_UP) == PRESSED)
+		sht = 1;
+	else if (joystickGetDigital(1, 5, JOY_DOWN) == UNPRESSED)
+		sht = -1;
+	else
+		sht = 0;
+
+	if (joystickGetDigital(1, 6, JOY_UP) == PRESSED) {
+		liftL = 1;
+		liftR = 1;
+	} else if (joystickGetDigital(1, 6, JOY_DOWN) == UNPRESSED) {
+		liftL = -1;
+		liftR = -1;
 	} else {
-		setLiftMotors(0);
+		liftL = 0;
+		liftR = 0;
 	}
 }
 
-void moveShooter(int joystick){
-	bool upPressed = joystickGetDigital(joystick, 5, JOY_UP);
-	bool downPressed = joystickGetDigital(joystick, 5, JOY_DOWN);
-
-	if (upPressed){
-		setShooterMotors(1);
-	} else if (downPressed){
-		setShooterMotors(-1);
-	} else {
-		setShooterMotors(0);
-	}
-
+void moveRobot() {
+	setLiftMotors(liftL, liftR);
+	setShooterMotors(sht);
+	setDriveMotors(spd, strafe, turn);
 }
+
 void operatorControl() {
 	while (1) {
-		moveRobot(1);
-		moveLift(1);
-		moveShooter(1);
-	/*	moveRobot(2);
-		moveLift(2);
-		moveShooter(2);*/
+		moveRobot();
 		delay(20);
 	}
 }
