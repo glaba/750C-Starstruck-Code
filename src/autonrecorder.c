@@ -226,7 +226,7 @@ void loadAuton() {
         printf("Waiting for file selection...\n");
         lcdSetText(LCD_PORT, 1, "Load from?");
         lcdSetText(LCD_PORT, 2, "");
-        autonSlot = selectAuton();
+        autonSlot = 1;
         if(autonSlot == 0) {
             printf("Not loading an autonomous!\n");
             lcdSetText(LCD_PORT, 1, "Not loading!");
@@ -316,6 +316,7 @@ void loadAuton() {
  * Replays autonomous based on loaded values in states array.
  */
 void playbackAuton() { //must load autonomous first!
+    lcdSetText(LCD_PORT, 1, "Test");
     if (autonLoaded == -1 /* nothing in memory */) {
         printf("No autonomous loaded, entering loadAuton()\n");
         loadAuton();
@@ -323,9 +324,7 @@ void playbackAuton() { //must load autonomous first!
     if(autonLoaded == 0) {
         printf("autonLoaded = 0, doing nothing.\n");
         return;
-    } else {
-		return;
-	}
+    }
     printf("Beginning playback...\n");
     lcdSetText(LCD_PORT, 1, "Playing back...");
     lcdSetText(LCD_PORT, 2, "");

@@ -36,10 +36,10 @@ inline void setDriveMotors(int forward, int lateral, int rotation) {
 }
 
 inline void setShooterMotors(int shooter){
-  motorSet(SHOOTER_BACK_LEFT_MOTOR, shooter * MOTOR_SPEED);
-  motorSet(SHOOTER_FRONT_LEFT_MOTOR, shooter * MOTOR_SPEED);
-  motorSet(SHOOTER_BACK_RIGHT_MOTOR, -shooter * MOTOR_SPEED);
-  motorSet(SHOOTER_FRONT_RIGHT_MOTOR, -shooter * MOTOR_SPEED);
+  motorSet(SHOOTER_BACK_LEFT_MOTOR, shooter);
+  motorSet(SHOOTER_FRONT_LEFT_MOTOR, shooter);
+  motorSet(SHOOTER_BACK_RIGHT_MOTOR, -shooter);
+  motorSet(SHOOTER_FRONT_RIGHT_MOTOR, -shooter);
 }
 
 inline void setLiftMotors(int L, int R) {

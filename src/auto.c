@@ -27,12 +27,7 @@
  * so, the robot will await a switch to another mode or disable/enable cycle.
  */
 void autonomous() {
-
-  motorSet(FRONT_LEFT_MOTOR, MOTOR_SPEED);
-	motorSet(FRONT_RIGHT_MOTOR, MOTOR_SPEED);
-	motorSet(BACK_LEFT_MOTOR, MOTOR_SPEED);
-	motorSet(BACK_RIGHT_MOTOR, MOTOR_SPEED);
-
-  delay(100);
-
+    autonLoaded = 0;
+    loadAuton();
+    playbackAuton();
 }

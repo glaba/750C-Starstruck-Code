@@ -42,24 +42,30 @@ int liftL;
 // Right lift motion
 int liftR;
 
+bool isLocked = false;
+
 void recordJoyInfo() {
 	spd = joystickGetAnalog(1, 3);
 	strafe = joystickGetAnalog(1, 4);
 	turn = joystickGetAnalog(1, 1);
 
-	if (joystickGetDigital(1, 5, JOY_UP) == PRESSED)
-		sht = 1;
-	else if (joystickGetDigital(1, 5, JOY_DOWN) == UNPRESSED)
-		sht = -1;
-	else
+	if (joystickGetDigital(1, 5, JOY_UP) == true || joystickGetDigital(2, 5, JOY_UP) == true) {
+		sht = 127;
+	} else if (joystickGetDigital(1, 5, JOY_DOWN) == true || joystickGetDigital(2, 5, JOY_DOWN) == true) {
+		sht = -127;
+	} else {
 		sht = 0;
+	}
+  if ((joystickGetDigital(1, 8, JOY_DOWN) == true || joystickGetDigital(2, 7, JOY_DOWN) == true)){
+		sht = 27;
+	}
 
-	if (joystickGetDigital(1, 6, JOY_UP) == PRESSED) {
-		liftL = 1;
-		liftR = 1;
-	} else if (joystickGetDigital(1, 6, JOY_DOWN) == UNPRESSED) {
+	if (joystickGetDigital(1, 6, JOY_UP) == true || joystickGetDigital(2, 6, JOY_UP) == true) {
 		liftL = -1;
 		liftR = -1;
+	} else if (joystickGetDigital(1, 6, JOY_DOWN) == true || joystickGetDigital(2, 6, JOY_DOWN) == true) {
+		liftL = 1;
+		liftR = 1;
 	} else {
 		liftL = 0;
 		liftR = 0;
@@ -74,6 +80,16 @@ void moveRobot() {
 
 void operatorControl() {
 	while (1) {
+		if (joystickGetDigital(1, 7,JOY_RIGHT) && !isOnline()){
+			recordAuton();
+			saveAuton();
+		}
+		if (joystickGetDigital(1, 7, JOY_LEFT)){
+			autonLoaded = 0;
+			loadAuton();
+			playbackAuton();
+		}
+		recordJoyInfo();
 		moveRobot();
 		delay(20);
 	}
