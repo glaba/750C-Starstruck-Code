@@ -108,6 +108,11 @@ extern joyState states[AUTON_TIME*JOY_POLL_FREQ];
 extern int autonLoaded;
 
 /**
+ * Whether or not the auton should be flipped (-1 if so, 1 if not)
+ */
+extern int autonFlipped;
+
+/**
  * Section number (0-3) of currently loaded programming skills routine.
  * Since programming skills lasts for 60 seconds, it can be represented by 4 standard autonomous recordings.
  */
@@ -135,7 +140,9 @@ void loadAuton();
 
 /**
  * Replays autonomous based on loaded values in states array.
+ *
+ * @param flipped -1 if the autonomous should be flipped over the y axis (for the opposite starting tile), 1 otherwise
  */
-void playbackAuton();
+void playbackAuton(int flipped);
 
 #endif

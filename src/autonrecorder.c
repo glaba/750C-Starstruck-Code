@@ -25,6 +25,11 @@ joyState states[AUTON_TIME*JOY_POLL_FREQ];
 int autonLoaded;
 
 /**
+ * Whether or not the autonomous should be flipped (-1 if so, 1 if not)
+ */
+int autonFlipped = 1;
+
+/**
  * Section number (0-3) of currently loaded programming skills routine.
  */
 int progSkills;
@@ -314,8 +319,10 @@ void loadAuton() {
 
 /**
  * Replays autonomous based on loaded values in states array.
+ *
+ * @param flipped -1 if the autonomous should be flipped over the y axis (for the opposite starting tile), 1 otherwise
  */
-void playbackAuton() { //must load autonomous first!
+void playbackAuton(int flipped) { //must load autonomous first!
     lcdSetText(LCD_PORT, 1, "Test");
     if (autonLoaded == -1 /* nothing in memory */) {
         printf("No autonomous loaded, entering loadAuton()\n");
@@ -342,9 +349,9 @@ void playbackAuton() { //must load autonomous first!
         for(int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
             printf("Playing back state %d...\n", i);
             spd = states[i].spd;
-            turn = states[i].turn;
+            turn = flipped * states[i].turn;
             sht = states[i].sht;
-            strafe = states[i].strafe;
+            strafe = flipped * states[i].strafe;
             liftL = states[i].liftL;
             liftR = states[i].liftR;
             if (joystickGetDigital(1, 7, JOY_UP) && !isOnline()) {

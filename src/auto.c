@@ -29,5 +29,5 @@
 void autonomous() {
     autonLoaded = 0;
     loadAuton();
-    playbackAuton();
+    playbackAuton(autonFlipped);
 }

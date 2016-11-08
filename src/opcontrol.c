@@ -87,7 +87,7 @@ void operatorControl() {
 		if (joystickGetDigital(1, 7, JOY_LEFT)){
 			autonLoaded = 0;
 			loadAuton();
-			playbackAuton();
+			playbackAuton(autonFlipped);
 		}
 		recordJoyInfo();
 		moveRobot();
