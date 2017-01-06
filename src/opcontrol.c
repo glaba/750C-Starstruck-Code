@@ -44,6 +44,9 @@ int liftR;
 
 bool isLocked = false;
 
+/*
+* Records joystick information into global variables for auton recorder and for robot motion
+*/
 void recordJoyInfo() {
 	spd = joystickGetAnalog(1, 3);
 	strafe = joystickGetAnalog(1, 4);
@@ -72,12 +75,18 @@ void recordJoyInfo() {
 	}
 }
 
+/*
+* Move robot based on collected joystick information or based on replayed information from auton recorder
+*/ 
 void moveRobot() {
 	setLiftMotors(liftL, liftR);
 	setShooterMotors(sht);
 	setDriveMotors(spd, strafe, turn);
 }
 
+/*
+* Runs the operator control loop
+*/
 void operatorControl() {
 	while (1) {
 		if (joystickGetDigital(1, 7,JOY_RIGHT) && !isOnline()){

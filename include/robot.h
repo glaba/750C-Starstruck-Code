@@ -10,14 +10,22 @@
 extern "C" {
 #endif
 
+// Definition for the front left drive motor
 #define FRONT_LEFT_MOTOR 4
+// Definition for the front right drive motor
 #define FRONT_RIGHT_MOTOR 2
+// Definition for the back left drive motor
 #define BACK_LEFT_MOTOR 3
+// Definition for the back right drive motor
 #define BACK_RIGHT_MOTOR 1
 
+// Definition for the right bottom lift motor
 #define LIFT_BOTTOM_RIGHT_MOTOR 5
+// Definition for the right top lift motor 
 #define LIFT_TOP_RIGHT_MOTOR 6
+// Definition for the bottom left lift motor
 #define LIFT_BOTTOM_LEFT_MOTOR 7
+// Definition for the top left lift motor
 #define LIFT_TOP_LEFT_MOTOR 10
 
 #define SHOOTER_BACK_LEFT_MOTOR 9
@@ -28,6 +36,9 @@ extern "C" {
 #define MOTOR_SPEED 127
 #define LCD_PORT uart1
 
+/*
+* Sets the drive motors based on certain amounts of rotation
+*/
 inline void setDriveMotors(int forward, int lateral, int rotation) {
 	motorSet(FRONT_LEFT_MOTOR, forward + lateral + rotation);
 	motorSet(FRONT_RIGHT_MOTOR, -forward + lateral + rotation);
