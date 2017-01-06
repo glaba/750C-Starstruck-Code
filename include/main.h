@@ -56,18 +56,22 @@ extern "C" {
 #define PRESSED LOW
 #define UNPRESSED HIGH
 
-// Forward motion
+/**
+ * Forward motion
+ */
 extern int spd;
-// CW rotational motion
+/**
+ * CW rotational motion
+ */
 extern int turn;
-// Motion of the dumper
+/**
+ * Motion of the pincer
+ */
 extern int sht;
-// Lateral strafing motion
-extern int strafe;
-// Left lift motion
-extern int liftL;
-// Right lift motion
-extern int liftR;
+/**
+ * Lift motion
+ */
+extern int lift;
 
 //#define AUTO_DEBUG
 

@@ -81,19 +81,9 @@ typedef struct joyState {
     signed char sht;
 
     /**
-    * Speed of the strafing motor.
-    */
-    signed char strafe;
-
-    /**
      * Speed of the left lift motor.
      */
-    signed char liftL;
-
-    /**
-     * Speed of the right lift motor.
-     */
-    signed char liftR;
+    signed char lift;
 } joyState;
 
 /**

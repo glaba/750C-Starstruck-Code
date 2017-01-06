@@ -29,27 +29,30 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 
-// Forward motion
+/** 
+ * Forward motion
+ */
 int spd;
-// CW rotational motion
+/** 
+ * CW rotational motion
+ */
 int turn;
-// Motion of the dumper
+/** 
+ * Motion of the pincer
+ */
 int sht;
-// Lateral strafing motion
-int strafe;
-// Left lift motion
-int liftL;
-// Right lift motion
-int liftR;
+/** 
+ * lift motion
+ */
+int lift;
 
 bool isLocked = false;
 
-/*
-* Records joystick information into global variables for auton recorder and for robot motion
-*/
+/**
+ * Records joystick information into global variables for auton recorder and for robot motion
+ */
 void recordJoyInfo() {
 	spd = joystickGetAnalog(1, 3);
-	strafe = joystickGetAnalog(1, 4);
 	turn = joystickGetAnalog(1, 1);
 
 	if (joystickGetDigital(1, 5, JOY_UP) == true || joystickGetDigital(2, 5, JOY_UP) == true) {
@@ -59,34 +62,28 @@ void recordJoyInfo() {
 	} else {
 		sht = 0;
 	}
-  if ((joystickGetDigital(1, 8, JOY_DOWN) == true || joystickGetDigital(2, 7, JOY_DOWN) == true)){
-		sht = 27;
-	}
 
 	if (joystickGetDigital(1, 6, JOY_UP) == true || joystickGetDigital(2, 6, JOY_UP) == true) {
-		liftL = -1;
-		liftR = -1;
+		lift = -1;
 	} else if (joystickGetDigital(1, 6, JOY_DOWN) == true || joystickGetDigital(2, 6, JOY_DOWN) == true) {
-		liftL = 1;
-		liftR = 1;
+		lift = 1;
 	} else {
-		liftL = 0;
-		liftR = 0;
+		lift = 0;
 	}
 }
 
-/*
-* Move robot based on collected joystick information or based on replayed information from auton recorder
-*/ 
+/**
+ * Move robot based on collected joystick information or based on replayed information from auton recorder
+ */ 
 void moveRobot() {
-	setLiftMotors(liftL, liftR);
-	setShooterMotors(sht);
-	setDriveMotors(spd, strafe, turn);
+	setLiftMotors(lift);
+	setPincerMotors(sht);
+	setDriveMotors(spd+turn,spd-turn);
 }
 
-/*
-* Runs the operator control loop
-*/
+/**
+ * Runs the operator control loop
+ */
 void operatorControl() {
 	while (1) {
 		if (joystickGetDigital(1, 7,JOY_RIGHT) && !isOnline()){
