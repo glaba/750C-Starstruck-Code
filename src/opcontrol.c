@@ -29,19 +29,19 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 
-/** 
+/**
  * Forward motion
  */
 int spd;
-/** 
+/**
  * CW rotational motion
  */
 int turn;
-/** 
+/**
  * Motion of the pincer
  */
 int sht;
-/** 
+/**
  * lift motion
  */
 int lift;
@@ -59,6 +59,8 @@ void recordJoyInfo() {
 		sht = 127;
 	} else if (joystickGetDigital(1, 5, JOY_DOWN) == true || joystickGetDigital(2, 5, JOY_DOWN) == true) {
 		sht = -127;
+	} else if(joystickGetDigital(1, 8, JOY_DOWN) == true ||joystickGetDigital(1, 8, JOY_DOWN) == true){
+		sht = -27;
 	} else {
 		sht = 0;
 	}
@@ -74,7 +76,7 @@ void recordJoyInfo() {
 
 /**
  * Move robot based on collected joystick information or based on replayed information from auton recorder
- */ 
+ */
 void moveRobot() {
 	setLiftMotors(lift);
 	setPincerMotors(sht);
