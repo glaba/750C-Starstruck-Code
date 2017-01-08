@@ -224,11 +224,17 @@ void loadAuton() {
     int autonSlot;
     FILE* autonFile;
     char filename[AUTON_FILENAME_MAX_LENGTH];
+    int timeout = 0;
     do {
         printf("Waiting for file selection...\n");
         lcdSetText(LCD_PORT, 1, "Load from?");
         lcdSetText(LCD_PORT, 2, "");
         autonSlot = 1;
+
+        if (timeout == 5) {
+          autonSlot = 0;
+        }
+
         if(autonSlot == 0) {
             printf("Not loading an autonomous!\n");
             lcdSetText(LCD_PORT, 1, "Not loading!");
@@ -278,6 +284,7 @@ void loadAuton() {
                 lcdSetText(LCD_PORT, 1, "No skills saved!");
             }
             delay(1000);
+            timeout += 1;
         } else {
             done = true;
         }

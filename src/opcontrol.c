@@ -56,10 +56,10 @@ void recordJoyInfo() {
 	turn = joystickGetAnalog(1, 1);
 
 	if (joystickGetDigital(1, 5, JOY_UP) == true || joystickGetDigital(2, 5, JOY_UP) == true) {
-		sht = 127;
-	} else if (joystickGetDigital(1, 5, JOY_DOWN) == true || joystickGetDigital(2, 5, JOY_DOWN) == true) {
 		sht = -127;
-	} else if(joystickGetDigital(1, 8, JOY_DOWN) == true ||joystickGetDigital(1, 8, JOY_DOWN) == true){
+	} else if (joystickGetDigital(1, 5, JOY_DOWN) == true || joystickGetDigital(2, 5, JOY_DOWN) == true) {
+		sht = 127;
+	} else if(joystickGetDigital(1, 8, JOY_DOWN) == true ||joystickGetDigital(2, 8, JOY_DOWN) == true){
 		sht = -27;
 	} else {
 		sht = 0;
@@ -93,7 +93,6 @@ void operatorControl() {
 			saveAuton();
 		}
 		if (joystickGetDigital(1, 7, JOY_LEFT)){
-			autonLoaded = 0;
 			loadAuton();
 			playbackAuton(autonFlipped);
 		}

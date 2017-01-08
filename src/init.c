@@ -41,7 +41,5 @@ void initialize() {
   lcdClear(LCD_PORT);
   lcdSetBacklight(LCD_PORT, true);
   initAutonRecorder();
-  if (isOnline()){
-    loadAuton();
-  }
+  loadAuton();
 }

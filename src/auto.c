@@ -27,7 +27,5 @@
  * so, the robot will await a switch to another mode or disable/enable cycle.
  */
 void autonomous() {
-    autonLoaded = 0;
-    loadAuton();
     playbackAuton(autonFlipped);
 }
