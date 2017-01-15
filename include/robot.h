@@ -65,8 +65,8 @@ extern "C" {
  */
 inline void setDriveMotors(int left, int right) {
 	motorSet(FRONT_LEFT_MOTOR, -left);
-	motorSet(FRONT_RIGHT_MOTOR, -right);
-	motorSet(BACK_LEFT_MOTOR, -left);
+	motorSet(FRONT_RIGHT_MOTOR, right);
+	motorSet(BACK_LEFT_MOTOR, left);
 	motorSet(BACK_RIGHT_MOTOR, -right);
 }
 
@@ -89,7 +89,7 @@ inline void setLiftMotors(int spd) {
 	motorSet(LIFT_MIDDLE_LEFT_MOTOR, spd * MOTOR_SPEED);
 	motorSet(LIFT_MIDDLE_RIGHT_MOTOR, -spd * MOTOR_SPEED);
  	motorSet(LIFT_BOTTOM_LEFT_MOTOR, spd * MOTOR_SPEED);
-	motorSet(LIFT_BOTTOM_RIGHT_MOTOR,  spd * MOTOR_SPEED);
+	motorSet(LIFT_BOTTOM_RIGHT_MOTOR,  -spd * MOTOR_SPEED);
 }
 
 #ifdef __cplusplus
