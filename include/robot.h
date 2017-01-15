@@ -21,42 +21,38 @@ extern "C" {
 /**
  * Definition for the front right drive motor
  */
-#define FRONT_RIGHT_MOTOR 6
+#define FRONT_RIGHT_MOTOR 10
 /**
  * Definition for the back left drive motor
  */
-#define BACK_LEFT_MOTOR 4
+#define BACK_LEFT_MOTOR 9
 /**
  * Definition for the back right drive motor
  */
-#define BACK_RIGHT_MOTOR 6
+#define BACK_RIGHT_MOTOR 2
 
 /**
-* De finition for the right bottom lift motor
+* Definition for the right top lift motor
 */
-#define LIFT_BOTTOM_RIGHT_MOTOR 10
+#define LIFT_TOP_Y_MOTOR 3
 /**
-* De finition for the right middle lift motor
+* Definition for the middle left lift motor
+*/
+#define LIFT_MIDDLE_LEFT_MOTOR 4
+/**
+* Definition for the right middle lift motor
 */
 #define LIFT_MIDDLE_RIGHT_MOTOR 7
 /**
-* De finition for the right top lift motor
+* Definition for the bottom left lift motor
 */
-#define LIFT_TOP_RIGHT_MOTOR 8
+#define LIFT_BOTTOM_LEFT_MOTOR 8
 /**
-* De finition for the bottom left lift motor
+* Definition for the right bottom lift motor
 */
-#define LIFT_BOTTOM_LEFT_MOTOR 3
-/**
-* De finition for the middle left lift motor
-*/
-#define LIFT_MIDDLE_LEFT_MOTOR 2
-/**
-* De finition for the top left lift motor
-*/
-#define LIFT_TOP_LEFT_MOTOR 5
+#define LIFT_BOTTOM_RIGHT_MOTOR 5
 
-#define PINCER_Y_MOTOR 9
+#define PINCER_Y_MOTOR 6
 
 #define MOTOR_SPEED 127
 #define LCD_PORT uart1
@@ -84,17 +80,16 @@ inline void setPincerMotors(int pincer){
 }
 
 /**
- * Sets the speed of the lift motors such that they rotate in the same direction
+ * Sets the speed of the lift motors such that they rotate to move the lift in the same direction
  *
  * @param spd sets the power to the lift motors on a continuum from -1 to 1
  */
 inline void setLiftMotors(int spd) {
-	motorSet(LIFT_BOTTOM_RIGHT_MOTOR,  spd * MOTOR_SPEED);
+	motorSet(LIFT_TOP_Y_MOTOR, spd * MOTOR_SPEED);
+	motorSet(LIFT_MIDDLE_LEFT_MOTOR, spd * MOTOR_SPEED);
 	motorSet(LIFT_MIDDLE_RIGHT_MOTOR, -spd * MOTOR_SPEED);
- 	motorSet(LIFT_TOP_RIGHT_MOTOR, -spd * MOTOR_SPEED);
  	motorSet(LIFT_BOTTOM_LEFT_MOTOR, spd * MOTOR_SPEED);
-  motorSet(LIFT_MIDDLE_LEFT_MOTOR, spd * MOTOR_SPEED);
-  motorSet(LIFT_TOP_LEFT_MOTOR, spd * MOTOR_SPEED);
+	motorSet(LIFT_BOTTOM_RIGHT_MOTOR,  spd * MOTOR_SPEED);
 }
 
 #ifdef __cplusplus
