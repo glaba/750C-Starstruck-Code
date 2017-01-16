@@ -25,7 +25,7 @@ extern "C" {
 /**
  * Definition for the back left drive motor
  */
-#define BACK_LEFT_MOTOR 9
+#define BACK_LEFT_MOTOR 7
 /**
  * Definition for the back right drive motor
  */
@@ -42,7 +42,7 @@ extern "C" {
 /**
 * Definition for the right middle lift motor
 */
-#define LIFT_MIDDLE_RIGHT_MOTOR 7
+#define LIFT_MIDDLE_RIGHT_MOTOR 9
 /**
 * Definition for the bottom left lift motor
 */
