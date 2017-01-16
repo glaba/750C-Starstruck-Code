@@ -59,7 +59,7 @@ void recordJoyInfo() {
 		sht = -127;
 	} else if (joystickGetDigital(1, 5, JOY_DOWN) == true || joystickGetDigital(2, 5, JOY_DOWN) == true) {
 		sht = 127;
-	} else if(joystickGetDigital(1, 8, JOY_DOWN) == true ||joystickGetDigital(2, 8, JOY_DOWN) == true){
+	} else if(joystickGetDigital(1, 8, JOY_DOWN) == true ||joystickGetDigital(2, 8, JOY_DOWN) == true) {
 		sht = -27;
 	} else {
 		sht = 0;
@@ -80,7 +80,7 @@ void recordJoyInfo() {
 void moveRobot() {
 	setLiftMotors(lift);
 	setPincerMotors(sht);
-	setDriveMotors(spd+turn,spd-turn);
+	setDriveMotors(spd + turn, spd - turn);
 }
 
 /**
@@ -88,14 +88,15 @@ void moveRobot() {
  */
 void operatorControl() {
 	while (1) {
-		if (joystickGetDigital(1, 7,JOY_RIGHT) && !isOnline()){
+		if (joystickGetDigital(1, 7, JOY_RIGHT) && !isOnline()) {
 			recordAuton();
 			saveAuton();
 		}
-		if (joystickGetDigital(1, 7, JOY_LEFT)){
+		if (joystickGetDigital(1, 7, JOY_LEFT)) {
 			loadAuton();
 			playbackAuton(autonFlipped);
 		}
+		updateLCDMenu(20);
 		recordJoyInfo();
 		moveRobot();
 		delay(20);

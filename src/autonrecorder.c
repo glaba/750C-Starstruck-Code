@@ -35,46 +35,6 @@ int autonFlipped = 1;
 int progSkills;
 
 /**
- * Selects which autonomous file to use based on the potentiometer reading.
- *
- * @return the autonomous selected (slot number)
- */
-int selectAuton() {
-    bool done = false;
-    int val;
-    do {
-        val = 1;//(float) ((float) analogRead(AUTON_POT)/(float) AUTON_POT_HIGH) * (MAX_AUTON_SLOTS+3);
-        if(val > MAX_AUTON_SLOTS+2){
-            val = MAX_AUTON_SLOTS+2;
-        }
-        if(val == 0) {
-            lcdSetText(LCD_PORT, 2, "NONE");
-        } else if(val == MAX_AUTON_SLOTS+1) {
-            lcdSetText(LCD_PORT, 2, "Prog. Skills");
-        } else if (val == MAX_AUTON_SLOTS+2) {
-            lcdSetText(LCD_PORT, 2, "Hardcoded Skills");
-        } else {
-            char filename[AUTON_FILENAME_MAX_LENGTH];
-            snprintf(filename, sizeof(filename)/sizeof(char), "a%d", val);
-            FILE* autonFile = fopen(filename, "r");
-            if(autonFile == NULL){
-                lcdPrint(LCD_PORT, 2, "Slot: %d (EMPTY)", val);
-            } else {
-                char name[LCD_MESSAGE_MAX_LENGTH+1];
-                memset(name, 0, sizeof(name));
-                fread(name, sizeof(char), sizeof(name) / sizeof(char), autonFile);
-                lcdSetText(LCD_PORT, 2, name);
-                fclose(autonFile);
-            }
-        }
-        done = true;//(digitalRead(AUTON_BUTTON) == PRESSED);
-        delay(20);
-    } while(!done);
-    printf("Selected autonomous: %d\n", val);
-    return val;
-}
-
-/**
  * Initializes autonomous recorder by setting states array to zero.
  */
 void initAutonRecorder() {
@@ -216,79 +176,115 @@ void saveAuton() {
 }
 
 /**
- * Loads autonomous file contents into states array.
+ * Gets the autonomous selection from the LCD buttons
+ *
+ * @return the autonomous selected (slot number)
  */
-void loadAuton() {
+int selectAuton() {
+    printf("Waiting for file selection...\n");
+    lcdSetText(LCD_PORT, 2, "None");
+
+    int curSlot = 0;
+
+    int prevLCDLeft = 0;
+    int prevLCDRight = 0;
+    while (lcdReadButtons(LCD_PORT) & LCD_BTN_CENTER == 0) {
+        if (lcdReadButtons(LCD_PORT) & LCD_BTN_RIGHT != 0 && prevLCDRight == 0) {
+            curSlot = (curSlot + 1) % (MAX_AUTON_SLOTS + 2);
+        } else if (lcdReadButtons(LCD_PORT) & LCD_BTN_LEFT != 0 && prevLCDLeft == 0) {
+            curSlot--;
+            if (curSlot == -1) {
+                curSlot = MAX_AUTON_SLOTS + 1;
+            }
+        }
+
+        if (curSlot == 0) {
+            lcdSetText(LCD_PORT, 2, "None");
+        } else if (curSlot == MAX_AUTON_SLOTS + 1) {
+            lcdSetText(LCD_PORT, 2, "Programming skills");            
+        } else {
+            char filename[AUTON_FILENAME_MAX_LENGTH];
+            snprintf(filename, sizeof(filename)/sizeof(char), "a%d", val);
+            FILE* autonFile = fopen(filename, "r");
+
+            if(autonFile == NULL){
+                lcdPrint(LCD_PORT, 2, "Slot: %d (EMPTY)", val);
+            } else {
+                lcdPrint(LCD_PORT, 2, "Slot: %d", val);
+            }
+        }
+
+        prevLCDLeft = lcdReadButtons(LCD_PORT) & LCD_BTN_LEFT;
+        prevLCDRight = lcdReadButtons(LCD_PORT) & LCD_BTN_RIGHT;
+
+        delay(20);
+    }
+
+    return curSlot;
+}
+
+/**
+ * Loads autonomous file contents into states array.
+ *
+ * @param autonSlot The slot of the autonomous to load. If this value is MAX_AUTON_SLOTS + 1, it will load the programming skills run instead.
+ */
+void loadAuton(int autonSlot) {
     lcdClear(LCD_PORT);
-    bool done = false;
     int autonSlot;
     FILE* autonFile;
     char filename[AUTON_FILENAME_MAX_LENGTH];
-    int timeout = 0;
-    do {
-        printf("Waiting for file selection...\n");
-        lcdSetText(LCD_PORT, 1, "Load from?");
+
+    if(autonSlot == 0) {
+        printf("Not loading an autonomous!\n");
+        lcdSetText(LCD_PORT, 1, "Not loading!");
         lcdSetText(LCD_PORT, 2, "");
-        autonSlot = 1;
-
-        if (timeout == 5) {
-          autonSlot = 0;
-        }
-
-        if(autonSlot == 0) {
-            printf("Not loading an autonomous!\n");
-            lcdSetText(LCD_PORT, 1, "Not loading!");
-            lcdSetText(LCD_PORT,   2, "");
-            autonLoaded = 0;
-            return;
-        } else if(autonSlot == MAX_AUTON_SLOTS + 1){
-            printf("Performing programming skills.\n");
-            lcdSetText(LCD_PORT, 1, "Loading skills...");
-            lcdPrint(LCD_PORT,   2, "Skills Part: 1");
-            autonLoaded = MAX_AUTON_SLOTS + 1;
-        } else if (autonSlot == MAX_AUTON_SLOTS + 2) {
-            printf("Performing hard-coded programming skills.\n");
-            lcdSetText(LCD_PORT, 1, "Loaded skills!");
-            lcdPrint(LCD_PORT,   2, "Hardcoded Skills");
-            autonLoaded = MAX_AUTON_SLOTS + 2;
-            return;
-        } else if(autonSlot == autonLoaded) {
-            printf("Autonomous %d is already loaded.\n", autonSlot);
-            lcdSetText(LCD_PORT, 1, "Loaded auton!");
-            lcdPrint(LCD_PORT,   2, "Slot: %d", autonSlot);
-            return;
-        }
-        printf("Loading autonomous from slot %d...\n", autonSlot);
-        lcdSetText(LCD_PORT, 1, "Loading auton...");
+        autonLoaded = 0;
+        return;
+    } else if(autonSlot == MAX_AUTON_SLOTS + 1){
+        printf("Performing programming skills.\n");
+        lcdSetText(LCD_PORT, 1, "Loading skills...");
+        lcdPrint(LCD_PORT,   2, "Skills Part: 1");
+        autonLoaded = MAX_AUTON_SLOTS + 1;
+    } else if (autonSlot == MAX_AUTON_SLOTS + 2) {
+        printf("Performing hard-coded programming skills.\n");
+        lcdSetText(LCD_PORT, 1, "Loaded skills!");
+        lcdPrint(LCD_PORT,   2, "Hardcoded Skills");
+        autonLoaded = MAX_AUTON_SLOTS + 2;
+        return;
+    } else if(autonSlot == autonLoaded) {
+        printf("Autonomous %d is already loaded.\n", autonSlot);
+        lcdSetText(LCD_PORT, 1, "Loaded auton!");
+        lcdPrint(LCD_PORT,   2, "Slot: %d", autonSlot);
+        return;
+    }
+    printf("Loading autonomous from slot %d...\n", autonSlot);
+    lcdSetText(LCD_PORT, 1, "Loading auton...");
+    if(autonSlot != MAX_AUTON_SLOTS + 1){
+        lcdPrint(LCD_PORT, 2,   "Slot: %d", autonSlot);
+    }
+    if(autonSlot != MAX_AUTON_SLOTS + 1){
+        printf("Not doing programming skills, loading slot %d\n", autonSlot);
+        snprintf(filename, sizeof(filename)/sizeof(char), "a%d", autonSlot);
+    } else {
+        printf("Doing programming skills, loading section 0.\n");
+        snprintf(filename, sizeof(filename)/sizeof(char), "p0");
+    }
+    printf("Loading from file %s...\n",filename);
+    autonFile = fopen(filename, "r");
+    if (autonFile == NULL) {
+        printf("No autonomous was saved in file %s!\n", filename);
+        lcdSetText(LCD_PORT, 1, "No auton saved!");
         if(autonSlot != MAX_AUTON_SLOTS + 1){
-            lcdPrint(LCD_PORT, 2,   "Slot: %d", autonSlot);
-        }
-        if(autonSlot != MAX_AUTON_SLOTS + 1){
-            printf("Not doing programming skills, loading slot %d\n", autonSlot);
-            snprintf(filename, sizeof(filename)/sizeof(char), "a%d", autonSlot);
-        } else {
-            printf("Doing programming skills, loading section 0.\n");
-            snprintf(filename, sizeof(filename)/sizeof(char), "p0");
-        }
-        printf("Loading from file %s...\n",filename);
-        autonFile = fopen(filename, "r");
-        if (autonFile == NULL) {
-            printf("No autonomous was saved in file %s!\n", filename);
+            printf("Not doing programming skills, no auton in slot %d!\n", autonSlot);
             lcdSetText(LCD_PORT, 1, "No auton saved!");
-            if(autonSlot != MAX_AUTON_SLOTS + 1){
-                printf("Not doing programming skills, no auton in slot %d!\n", autonSlot);
-                lcdSetText(LCD_PORT, 1, "No auton saved!");
-                lcdPrint(LCD_PORT, 2,   "Slot: %d", autonSlot);
-            } else {
-                printf("Doing programming skills, no auton in section 0!\n");
-                lcdSetText(LCD_PORT, 1, "No skills saved!");
-            }
-            delay(1000);
-            timeout += 1;
+            lcdPrint(LCD_PORT, 2,   "Slot: %d", autonSlot);
         } else {
-            done = true;
+            printf("Doing programming skills, no auton in section 0!\n");
+            lcdSetText(LCD_PORT, 1, "No skills saved!");
         }
-    } while(!done);
+        return;
+    }
+
     fseek(autonFile, 0, SEEK_SET);
     char name[LCD_MESSAGE_MAX_LENGTH+1];
     memset(name, 0, sizeof(name));

@@ -37,9 +37,11 @@ void initializeIO() {
  * can be implemented in this task if desired.
  */
 void initialize() {
-  lcdInit(LCD_PORT);
-  lcdClear(LCD_PORT);
-  lcdSetBacklight(LCD_PORT, true);
-  initAutonRecorder();
-  loadAuton();
+	lcdInit(LCD_PORT);
+	lcdClear(LCD_PORT);
+	lcdSetBacklight(LCD_PORT, true);
+	initAutonRecorder();
+	initLCDMenu();
+	lcdSetText(LCD_PORT, 1, "Load from?");
+	loadAuton(selectAuton());
 }

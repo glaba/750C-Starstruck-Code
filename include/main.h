@@ -46,6 +46,7 @@
 #include <API.h>
 #include "autonrecorder.h"
 #include "robot.h"
+#include "lcdDisplay.h"
 
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
