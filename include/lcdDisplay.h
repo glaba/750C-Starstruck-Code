@@ -68,7 +68,7 @@ typedef struct menu_item {
 	 *
 	 * @param int The index of the menu item that triggered the function call
 	 */
-	void (*runFunction)(int)
+	void (*runFunction)(int);
 } menu_item; 
 
 /**

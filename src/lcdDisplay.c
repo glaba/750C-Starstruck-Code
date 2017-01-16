@@ -6,6 +6,7 @@
  */
 
 #include "main.h"
+#include <string.h>
 
 /**
  * The first level of menu items that show up on the LCD after the splash screen
@@ -55,9 +56,10 @@ int prevLCDCenter = 0;
  */
 void showBatteryInfo(int index) {
 	double primaryBatt = powerLevelMain() / 1000.0;
-	double secondaryBatt = powerLevelExpander() / 1000.0;
+	//double secondaryBatt = powerLevelExpander() / 1000.0;
 	lcdPrint(LCD_PORT, 1, "Main: %f", primaryBatt);
-	lcdPrint(LCD_PORT, 2, "Expander: %f", secondaryBatt);
+	lcdSetText(LCD_PORT, 2, "");
+	//lcdPrint(LCD_PORT, 2, "Expander: %f", secondaryBatt);
 }
 
 /**
@@ -84,7 +86,7 @@ void runMotorUntilPress(int index) {
 	motorSet(index, 127);
 	
 	while (lcdReadButtons(LCD_PORT) == 0) {
-		delay(20)
+		delay(20);
 	}
 
 	motorSet(index, 0);
@@ -107,28 +109,28 @@ void lcdPlaybackAuton(int index) {
 void initLCDMenu() {
 	initialMenuItems = (menu_item*) malloc(4 * sizeof(menu_item));
 
-	menu_item batteryMenu, motorTest, recordAuton, loadAuton;
 	menu_item* motorTestMenus;
-
 	motorTestMenus = malloc(10 * sizeof(menu_item));
+	
+	menu_item batteryMenu = { .isFunction = true, .name = "Battery Info", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = showBatteryInfo };
+	menu_item motorTest = { .isFunction = false, .name = "Motor Testing", .description = "Run chosen motor(s)", .numChildren = 10, .children = motorTestMenus, .numParents = 0, .parent = 0, .runFunction = 0 };
+	menu_item recordAuton = { .isFunction = true, .name = "Record auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = recordAutonWrapper };
+	menu_item loadAuton = { .isFunction = false, .name = "Playback auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = lcdPlaybackAuton };
+
 	for (int i = 0; i < 10; i++) {
-		char name[8];
-		snprintf(name, 8, "Port %d", i + 1);
+		char* name = malloc(18 * sizeof(char));
+		snprintf(name, 18, "Port %d", i + 1);
 
-		motorTestMenus[i] = (menu_item) { .isFunction = true, .name = name, .description = "", .numChildren = 0, .children = 0, .numParents = 4, .parent = &motorTest, .runFunction = &runMotorUntilPress };
+		menu_item curMotorTestMenu = { .isFunction = true, .name = name, .description = "", .numChildren = 0, .children = 0, .numParents = 4, .parent = &motorTest, .runFunction = runMotorUntilPress };
+		motorTestMenus[i] = curMotorTestMenu;
 	}
-
-	batteryMenu = (menu_item) { .isFunction = true, .name = "Battery Info", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = showBatteryInfo };
-	motorTest = (menu_item) { .isFunction = false, .name = "Motor Testing", .description = "Run chosen motor(s)", .numChildren = 10, .children = motorTestMenus, .numParents = 0, .parent = 0, .runFunction = 0 };
-	recordAuton = (menu_item) { .isFunction = true, .name = "Record auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = recordAutonWrapper };
-	loadAuton = (menu_item) { .isFunction = false, .name = "Playback auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = lcdPlaybackAuton };
 
 	initialMenuItems[0] = batteryMenu;
 	initialMenuItems[1] = motorTest;
 	initialMenuItems[2] = recordAuton;
 	initialMenuItems[3] = loadAuton;
 
-	currentMenu = initialMenuItems;
+	currentMenus = initialMenuItems;
 	numMenuItems = 4;
 }
 
@@ -138,16 +140,15 @@ void initLCDMenu() {
  * @param dt The amount of time that has passed since the function was last called
  */
 void updateLCDMenu(int dt) {
-	if (lcdReadButtons(LCD_PORT) & LCD_BTN_CENTER != 0 && prevLCDCenter == 0) {
+	if (((lcdReadButtons(LCD_PORT) & LCD_BTN_CENTER) != 0) && prevLCDCenter == 0) {
 		if (currentMenus[currentMenuIndex].isFunction) {
-			currentMenus[currentMenuIndex].runFunction();
+			currentMenus[currentMenuIndex].runFunction(currentMenuIndex);
 		} else {
-			prevNumMenuItems = numMenuItems;
 			numMenuItems = currentMenus[currentMenuIndex].numChildren;
 			currentMenus = currentMenus[currentMenuIndex].children;
 			currentMenuIndex = 0;
 		}
-	} else if (lcdReadButtons(LCD_PORT) & LCD_BTN_RIGHT != 0 && prevLCDRight == 0) {
+	} else if (((lcdReadButtons(LCD_PORT) & LCD_BTN_RIGHT) != 0) && prevLCDRight == 0) {
 		if (currentMenuIndex == numMenuItems - 1) {
 			if (currentMenus[currentMenuIndex].parent != 0) {
 				numMenuItems = currentMenus[currentMenuIndex].numParents;
@@ -159,7 +160,7 @@ void updateLCDMenu(int dt) {
 		} else {
 			currentMenuIndex++;
 		}
-	} else if (lcdReadButtons(LCD_PORT) & LCD_BTN_LEFT != 0 && prevLCDLeft == 0) {
+	} else if (((lcdReadButtons(LCD_PORT) & LCD_BTN_LEFT) != 0) && prevLCDLeft == 0) {
 		if (currentMenuIndex == 0) {
 			if (currentMenus[currentMenuIndex].parent != 0) {
 				numMenuItems = currentMenus[currentMenuIndex].numParents;
@@ -177,10 +178,10 @@ void updateLCDMenu(int dt) {
 
 	char firstChar = '<';
 	char secondChar = '>';
-	if (currentMenuIndex == 0 && curMenu.parent != 0) {
+	if ((currentMenuIndex == 0) && (curMenu.parent != 0)) {
 		firstChar = '^';
 	} 
-	if (currentMenuIndex == numMenuItems && curMenu.parent != 0) {
+	if ((currentMenuIndex == numMenuItems) && (curMenu.parent != 0)) {
 		secondChar = '^';
 	}
 

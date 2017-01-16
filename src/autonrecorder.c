@@ -188,10 +188,10 @@ int selectAuton() {
 
     int prevLCDLeft = 0;
     int prevLCDRight = 0;
-    while (lcdReadButtons(LCD_PORT) & LCD_BTN_CENTER == 0) {
-        if (lcdReadButtons(LCD_PORT) & LCD_BTN_RIGHT != 0 && prevLCDRight == 0) {
+    while ((lcdReadButtons(LCD_PORT) & LCD_BTN_CENTER) == 0) {
+        if (((lcdReadButtons(LCD_PORT) & LCD_BTN_RIGHT) != 0) && prevLCDRight == 0) {
             curSlot = (curSlot + 1) % (MAX_AUTON_SLOTS + 2);
-        } else if (lcdReadButtons(LCD_PORT) & LCD_BTN_LEFT != 0 && prevLCDLeft == 0) {
+        } else if (((lcdReadButtons(LCD_PORT) & LCD_BTN_LEFT) != 0) && prevLCDLeft == 0) {
             curSlot--;
             if (curSlot == -1) {
                 curSlot = MAX_AUTON_SLOTS + 1;
@@ -204,13 +204,13 @@ int selectAuton() {
             lcdSetText(LCD_PORT, 2, "Programming skills");            
         } else {
             char filename[AUTON_FILENAME_MAX_LENGTH];
-            snprintf(filename, sizeof(filename)/sizeof(char), "a%d", val);
+            snprintf(filename, sizeof(filename)/sizeof(char), "a%d", curSlot);
             FILE* autonFile = fopen(filename, "r");
 
             if(autonFile == NULL){
-                lcdPrint(LCD_PORT, 2, "Slot: %d (EMPTY)", val);
+                lcdPrint(LCD_PORT, 2, "Slot: %d (EMPTY)", curSlot);
             } else {
-                lcdPrint(LCD_PORT, 2, "Slot: %d", val);
+                lcdPrint(LCD_PORT, 2, "Slot: %d", curSlot);
             }
         }
 
@@ -230,7 +230,6 @@ int selectAuton() {
  */
 void loadAuton(int autonSlot) {
     lcdClear(LCD_PORT);
-    int autonSlot;
     FILE* autonFile;
     char filename[AUTON_FILENAME_MAX_LENGTH];
 
@@ -324,7 +323,8 @@ void playbackAuton(int flipped) { //must load autonomous first!
     lcdSetText(LCD_PORT, 1, "Test");
     if (autonLoaded == -1 /* nothing in memory */) {
         printf("No autonomous loaded, entering loadAuton()\n");
-        loadAuton();
+        lcdSetText(LCD_PORT, 1, "Load from?");
+        loadAuton(selectAuton());
     }
     if(autonLoaded == 0) {
         printf("autonLoaded = 0, doing nothing.\n");

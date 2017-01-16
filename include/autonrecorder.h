@@ -119,6 +119,13 @@ void initAutonRecorder();
 void recordAuton();
 
 /**
+ * Gets the autonomous selection from the LCD buttons
+ *
+ * @return the autonomous selected (slot number)
+ */
+int selectAuton();
+
+/**
  * Saves contents of the states array to a file in flash memory for later playback.
  */
 void saveAuton();
