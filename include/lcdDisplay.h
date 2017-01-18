@@ -22,7 +22,7 @@ extern "C" {
 /**
  * Defines the maximum length of a message printed on one line of the LCD display
  */
-#define LCD_MESSAGE_MAX_LENGTH 20
+#define LCD_MESSAGE_MAX_LENGTH 16
 
 /**
  * A struct that defines an item in the LCD navigation menu
@@ -36,12 +36,12 @@ typedef struct menu_item {
 	/**
 	 * The name of the LCD menu item
 	 */
-	char name[LCD_MESSAGE_MAX_LENGTH - 2 + 1];
+	char* name;
 
 	/**
 	 * A short description of the LCD menu item
 	 */
-	char description[LCD_MESSAGE_MAX_LENGTH + 1];
+	char* description;
 
 	/**
 	 * The number of children
@@ -52,6 +52,11 @@ typedef struct menu_item {
 	 * The number of items in the parent menu
 	 */
 	int numParents;
+
+	/**
+	 * The index of the parent menu item in its menu
+	 */
+	int parentIndex;
 
 	/**
 	 * The children menus of the current menu item

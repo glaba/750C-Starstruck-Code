@@ -73,7 +73,7 @@ void recordAutonWrapper(int index) {
 }
 
 /**
- * Runs a motor until the center LCD button is pressed
+ * Runs a motor until an LCD button is pressed
  *
  * @param index The index of the motor port to run (starting from 0)
  */
@@ -112,16 +112,16 @@ void initLCDMenu() {
 	menu_item* motorTestMenus;
 	motorTestMenus = malloc(10 * sizeof(menu_item));
 	
-	menu_item batteryMenu = { .isFunction = true, .name = "Battery Info", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = showBatteryInfo };
-	menu_item motorTest = { .isFunction = false, .name = "Motor Testing", .description = "Run chosen motor(s)", .numChildren = 10, .children = motorTestMenus, .numParents = 0, .parent = 0, .runFunction = 0 };
-	menu_item recordAuton = { .isFunction = true, .name = "Record auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = recordAutonWrapper };
-	menu_item loadAuton = { .isFunction = false, .name = "Playback auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parent = 0, .runFunction = lcdPlaybackAuton };
+	menu_item batteryMenu = { .isFunction = true, .name = "Battery Info", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &showBatteryInfo };
+	menu_item motorTest = { .isFunction = false, .name = "Motor Testing", .description = "Run chosen motor(s)", .numChildren = 10, .children = motorTestMenus, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = 0 };
+	menu_item recordAuton = { .isFunction = true, .name = "Record Auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &recordAutonWrapper };
+	menu_item loadAuton = { .isFunction = true, .name = "Playback Auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &lcdPlaybackAuton };
 
 	for (int i = 0; i < 10; i++) {
-		char* name = malloc(18 * sizeof(char));
-		snprintf(name, 18, "Port %d", i + 1);
+		char* name = malloc((LCD_MESSAGE_MAX_LENGTH - 2 + 1) * sizeof(char));
+		snprintf(name, LCD_MESSAGE_MAX_LENGTH - 2 + 1, "Port %d", i + 1);
 
-		menu_item curMotorTestMenu = { .isFunction = true, .name = name, .description = "", .numChildren = 0, .children = 0, .numParents = 4, .parent = &motorTest, .runFunction = runMotorUntilPress };
+		menu_item curMotorTestMenu = { .isFunction = true, .name = name, .description = "", .numChildren = 0, .children = 0, .numParents = 4, .parentIndex = 1, .parent = &motorTest, .runFunction = &runMotorUntilPress };
 		motorTestMenus[i] = curMotorTestMenu;
 	}
 
@@ -152,8 +152,9 @@ void updateLCDMenu(int dt) {
 		if (currentMenuIndex == numMenuItems - 1) {
 			if (currentMenus[currentMenuIndex].parent != 0) {
 				numMenuItems = currentMenus[currentMenuIndex].numParents;
+				int newIndex = currentMenus[currentMenuIndex].parentIndex;
 				currentMenus = currentMenus[currentMenuIndex].parent;
-				currentMenuIndex = 0;
+				currentMenuIndex = newIndex;
 			} else {
 				menuTimeout = 5000;
 			}
@@ -164,8 +165,9 @@ void updateLCDMenu(int dt) {
 		if (currentMenuIndex == 0) {
 			if (currentMenus[currentMenuIndex].parent != 0) {
 				numMenuItems = currentMenus[currentMenuIndex].numParents;
+				int newIndex = currentMenus[currentMenuIndex].parentIndex;
 				currentMenus = currentMenus[currentMenuIndex].parent;
-				currentMenuIndex = 0;
+				currentMenuIndex = newIndex;
 			} else {
 				menuTimeout = 5000;
 			}
@@ -176,18 +178,23 @@ void updateLCDMenu(int dt) {
 
 	menu_item curMenu = currentMenus[currentMenuIndex];
 
-	char firstChar = '<';
-	char secondChar = '>';
+	char firstChar = 247; // Left arrow
+	char secondChar = 246; // Right arrow
 	if ((currentMenuIndex == 0) && (curMenu.parent != 0)) {
-		firstChar = '^';
+		firstChar = 197; // Up arrow
 	} 
 	if ((currentMenuIndex == numMenuItems) && (curMenu.parent != 0)) {
-		secondChar = '^';
+		secondChar = 197; // Up arrow
 	}
 
-	int line1Padding1 = (18 - strlen(curMenu.name)) / 2 + ((18 - strlen(curMenu.name)) % 2 != 0);
-	int line1Padding2 = (18 - strlen(curMenu.name)) / 2; 
-	lcdPrint(LCD_PORT, 1, "%c%*s%s%*s%c", firstChar, line1Padding1, "", curMenu.name, line1Padding2, "", secondChar);
+	int totalNumSpaces = LCD_MESSAGE_MAX_LENGTH - 2 - strlen(curMenu.name); 
+	int line1Padding1 = totalNumSpaces / 2 + (totalNumSpaces % 2 != 0);
+	int line1Padding2 = totalNumSpaces / 2; 
+
+	char output[LCD_MESSAGE_MAX_LENGTH + 1];
+	snprintf(output, LCD_MESSAGE_MAX_LENGTH + 1, "%c%*s%s%*s%c", firstChar, line1Padding1, "", curMenu.name, line1Padding2, "", secondChar);
+	
+	lcdSetText(LCD_PORT, 1, output);
 	lcdSetText(LCD_PORT, 2, curMenu.description);
 
 	prevLCDCenter = lcdReadButtons(LCD_PORT) & LCD_BTN_CENTER;
