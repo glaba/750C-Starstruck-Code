@@ -53,7 +53,6 @@
 extern "C" {
 #endif
 
-#define LCD_MESSAGE_MAX_LENGTH 20
 #define PRESSED LOW
 #define UNPRESSED HIGH
 

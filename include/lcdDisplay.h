@@ -61,7 +61,7 @@ typedef struct menu_item {
 	/**
 	 * The children menus of the current menu item
 	 */
-	struct menu_item** children;
+	struct menu_item* children;
 
 	/**
 	 * A reference to the parent menu

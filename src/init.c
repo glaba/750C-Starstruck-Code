@@ -44,4 +44,5 @@ void initialize() {
 	initLCDMenu();
 	lcdSetText(LCD_PORT, 1, "Load from?");
 	loadAuton(selectAuton());
+	delay(500);
 }

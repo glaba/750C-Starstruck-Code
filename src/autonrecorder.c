@@ -85,12 +85,15 @@ void recordAuton() {
         moveRobot();
         delay(1000 / JOY_POLL_FREQ);
     }
+    lcdSetBacklight(LCD_PORT, true);
+
     printf("Completed autonomous recording.\n");
     lcdSetText(LCD_PORT, 1, "Recorded auton!");
     lcdSetText(LCD_PORT, 2, "");
     motorStopAll();
     delay(1000);
     autonLoaded = 0;
+
 }
 
 /**
