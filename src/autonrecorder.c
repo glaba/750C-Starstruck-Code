@@ -214,6 +214,7 @@ int selectAuton() {
                 lcdPrint(LCD_PORT, 2, "Slot: %d (EMPTY)", curSlot);
             } else {
                 lcdPrint(LCD_PORT, 2, "Slot: %d", curSlot);
+                fclose(autonFile);
             }
         }
 
