@@ -72,6 +72,7 @@ void recordAuton() {
         lightState = !lightState;
         recordJoyInfo();
         states[i].spd = spd;
+        states[i].horizontal = horizontal;
         states[i].turn = turn;
         states[i].sht = sht;
         states[i].lift = lift;
@@ -153,7 +154,7 @@ void saveAuton() {
     }
     for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
         printf("Recording state %d to file %s...\n", i, filename);
-        signed char write[4] = {states[i].spd, states[i].turn, states[i].sht, states[i].lift};
+        signed char write[5] = {states[i].spd, states[i].horizontal, states[i].turn, states[i].sht, states[i].lift};
         fwrite(write, sizeof(char), sizeof(write) / sizeof(char), autonFile);
         delay(10);
     }
@@ -204,7 +205,7 @@ int selectAuton() {
         if (curSlot == 0) {
             lcdSetText(LCD_PORT, 2, "None");
         } else if (curSlot == MAX_AUTON_SLOTS + 1) {
-            lcdSetText(LCD_PORT, 2, "Programming skills");            
+            lcdSetText(LCD_PORT, 2, "Programming skills");
         } else {
             char filename[AUTON_FILENAME_MAX_LENGTH];
             snprintf(filename, sizeof(filename)/sizeof(char), "a%d", curSlot);
@@ -214,6 +215,7 @@ int selectAuton() {
                 lcdPrint(LCD_PORT, 2, "Slot: %d (EMPTY)", curSlot);
             } else {
                 lcdPrint(LCD_PORT, 2, "Slot: %d", curSlot);
+                fclose(autonFile);
             }
         }
 
@@ -295,12 +297,13 @@ void loadAuton(int autonSlot) {
     }
     for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
         printf("Loading state %d from file %s...\n", i, filename);
-        char read[4] = {0, 0, 0, 0};
+        char read[5] = {0, 0, 0, 0, 0};
         fread(read, sizeof(char), sizeof(read) / sizeof(char), autonFile);
         states[i].spd = (signed char) read[0];
-        states[i].turn = (signed char) read[1];
-        states[i].sht = (signed char) read[2];
-        states[i].lift = (signed char) read[3];
+        states[i].horizontal = read[1];
+        states[i].turn = (signed char) read[2];
+        states[i].sht = (signed char) read[3];
+        states[i].lift = (signed char) read[4];
         delay(10);
     }
     fclose(autonFile);
@@ -350,6 +353,7 @@ void playbackAuton(int flipped) { //must load autonomous first!
         for(int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
             printf("Playing back state %d...\n", i);
             spd = states[i].spd;
+            horizontal = states[i].horizontal;
             turn = flipped * states[i].turn;
             sht = states[i].sht;
             lift = states[i].lift;
@@ -363,12 +367,13 @@ void playbackAuton(int flipped) { //must load autonomous first!
             moveRobot();
             if(autonLoaded == MAX_AUTON_SLOTS + 1 && file < PROGSKILL_TIME/AUTON_TIME - 1){
                 printf("Loading state %d from file %s...\n", i, filename);
-                char read[4] = {0, 0, 0, 0};
+                char read[5] = {0, 0, 0, 0, 0};
                 fread(read, sizeof(char), sizeof(read) / sizeof(char), nextFile);
                 states[i].spd = (signed char) read[0];
-                states[i].turn = (signed char) read[1];
-                states[i].sht = (signed char) read[2];
-                states[i].lift = (signed char) read[3];
+                states[i].horizontal = (signed char) read[1];
+                states[i].turn = (signed char) read[2];
+                states[i].sht = (signed char) read[3];
+                states[i].lift = (signed char) read[4];
             }
             delay(1000 / JOY_POLL_FREQ);
         }
