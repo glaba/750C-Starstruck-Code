@@ -61,6 +61,10 @@ extern "C" {
  */
 extern int spd;
 /**
+ * Horizontal motion
+ */
+extern int horizontal;
+/**
  * CW rotational motion
  */
 extern int turn;

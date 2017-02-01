@@ -34,6 +34,10 @@
  */
 int spd;
 /**
+ * Horizontal motion
+ */
+ int horizontal;
+/**
  * CW rotational motion
  */
 int turn;
@@ -53,6 +57,7 @@ bool isLocked = false;
  */
 void recordJoyInfo() {
 	spd = joystickGetAnalog(1, 3);
+	horizontal = pow(joystickGetAnalog(1, 4) / 127.0, 4) * 127 * joystickGetAnalog(1, 4) / abs(joystickGetAnalog(1, 4));
 	turn = joystickGetAnalog(1, 1);
 
 	if (joystickGetDigital(1, 5, JOY_UP) == true || joystickGetDigital(2, 5, JOY_UP) == true) {
@@ -80,7 +85,7 @@ void recordJoyInfo() {
 void moveRobot() {
 	setLiftMotors(lift);
 	setPincerMotors(sht);
-	setDriveMotors(spd + turn, spd - turn);
+	setDriveMotors(spd, horizontal, turn);
 }
 
 /**

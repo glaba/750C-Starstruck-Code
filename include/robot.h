@@ -8,6 +8,7 @@
 #define ROBOT_H_
 
 #include <API.h>
+#include <Math.h>
 
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
@@ -63,11 +64,11 @@ extern "C" {
  * @param left sets the power to the left motors
  * @param right sets the power to the right motors
  */
-inline void setDriveMotors(int left, int right) {
-	motorSet(FRONT_LEFT_MOTOR, -left);
-	motorSet(FRONT_RIGHT_MOTOR, right);
-	motorSet(BACK_LEFT_MOTOR, left);
-	motorSet(BACK_RIGHT_MOTOR, -right);
+inline void setDriveMotors(int forward, int horizontal, int turn) {
+	motorSet(FRONT_LEFT_MOTOR, -(forward + horizontal + turn));
+	motorSet(FRONT_RIGHT_MOTOR, -(-forward + horizontal + turn));
+	motorSet(BACK_LEFT_MOTOR, forward - horizontal + turn);
+	motorSet(BACK_RIGHT_MOTOR, -forward - horizontal + turn);
 }
 
 /**

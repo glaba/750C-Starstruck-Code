@@ -73,6 +73,11 @@ typedef struct joyState {
     /**
     * Turning speed of the drive motors.
     */
+    signed char horizontal;
+    /**
+    * Horizontal motion
+    */
+
     signed char turn;
 
     /**
