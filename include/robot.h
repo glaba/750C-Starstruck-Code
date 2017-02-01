@@ -15,6 +15,9 @@
 extern "C" {
 #endif
 
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
+
 /**
  * Definition for the front left drive motor
  */

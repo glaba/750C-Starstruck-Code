@@ -14,7 +14,7 @@
 /**
  * Number of seconds the autonomous period lasts.
  */
-#define AUTON_TIME 15
+#define AUTON_TIME 5
 
 /**
  * Number of seconds the programming skills challenge lasts.
@@ -70,6 +70,7 @@ typedef struct joyState {
     */
     signed char spd;
 
+    signed char turn;
     /**
     * Turning speed of the drive motors.
     */
@@ -78,7 +79,6 @@ typedef struct joyState {
     * Horizontal motion
     */
 
-    signed char turn;
 
     /**
     * Speed of the dumper motors.
@@ -138,7 +138,7 @@ void saveAuton();
 /**
  * Loads autonomous file contents into states array for playback.
  */
-void loadAuton();
+void loadAuton(int autonFile);
 
 /**
  * Replays autonomous based on loaded values in states array.

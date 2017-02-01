@@ -202,7 +202,6 @@ void updateLCDMenu(int dt) {
 
 	int totalNumSpaces = LCD_MESSAGE_MAX_LENGTH - 2 - strlen(curMenu.name); 
 	int line1Padding1 = totalNumSpaces / 2 + (totalNumSpaces % 2 != 0);
-	int line1Padding2 = totalNumSpaces / 2; 
 
 	char output[LCD_MESSAGE_MAX_LENGTH + 1];
 	memset(output, ' ', LCD_MESSAGE_MAX_LENGTH);

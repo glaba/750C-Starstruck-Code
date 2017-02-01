@@ -92,14 +92,21 @@ void moveRobot() {
  * Runs the operator control loop
  */
 void operatorControl() {
+	loadAuton(1);
+	if (autonLoaded >= 0) 
+		playbackAuton(1);
+	else {
+		recordAuton();
+		saveAuton();
+	}
 	while (1) {
 		if (joystickGetDigital(1, 7, JOY_RIGHT) && !isOnline()) {
 			recordAuton();
 			saveAuton();
 		}
 		if (joystickGetDigital(1, 7, JOY_LEFT)) {
-			loadAuton();
-			playbackAuton(autonFlipped);
+			loadAuton(1);
+			playbackAuton(1);
 		}
 		updateLCDMenu(20);
 		recordJoyInfo();

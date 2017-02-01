@@ -12,6 +12,7 @@
 
 #include "main.h"
 #include <string.h>
+#include <stdlib.h>
 
 /**
  * Stores the joystick state variables for moving the robot.
@@ -72,10 +73,11 @@ void recordAuton() {
         lightState = !lightState;
         recordJoyInfo();
         states[i].spd = spd;
-        states[i].horizontal = horizontal;
+        states[i].horizontal = (signed char)((int)(i * 2) % 255 - 127);//horizontal;
         states[i].turn = turn;
         states[i].sht = sht;
         states[i].lift = lift;
+        printf("Record State %d, Speed: %d %d %d %d %d\n", i, states[i].spd, states[i].horizontal, states[i].turn, states[i].sht, states[i].lift);
         if (joystickGetDigital(1, 7, JOY_UP)) {
             printf("Autonomous recording manually cancelled.\n");
             lcdSetText(LCD_PORT, 1, "Cancelled record.");
@@ -107,26 +109,21 @@ void saveAuton() {
     lcdSetText(LCD_PORT, 2, "");
     int autonSlot;
     if(progSkills == 0) {
-        autonSlot = selectAuton();
+        autonSlot = 1;
     } else {
         printf("Currently in the middle of a programming skills run.\n");
         autonSlot = MAX_AUTON_SLOTS + 1;
     }
-    char name[LCD_MESSAGE_MAX_LENGTH+1];
-    memset(name, 0, sizeof(name));
     if(autonSlot == 0) {
         printf("Not saving this autonomous!\n");
         return;
-    } else if(autonSlot != MAX_AUTON_SLOTS+1) {
-        name[0] = 48 + autonSlot;
     }
     lcdSetText(LCD_PORT, 1, "Saving auton...");
     char filename[AUTON_FILENAME_MAX_LENGTH];
     if(autonSlot != MAX_AUTON_SLOTS + 1) {
         printf("Not doing programming skills, recording to slot %d.\n",autonSlot);
         snprintf(filename, sizeof(filename)/sizeof(char), "a%d", autonSlot);
-        //lcdPrint(LCD_PORT, 2, "Slot: %d", autonSlot);
-        lcdPrint(LCD_PORT, 2, "%s", name);
+        lcdPrint(LCD_PORT, 2, "Slot: %d", autonSlot);
     } else {
         printf("Doing programming skills, recording to section %d.\n", progSkills);
         snprintf(filename, sizeof(filename)/sizeof(char), "p%d", progSkills);
@@ -149,13 +146,19 @@ void saveAuton() {
         delay(1000);
         return;
     }
-    if(autonSlot != MAX_AUTON_SLOTS+1){
-        fwrite(name, sizeof(char), sizeof(name) / sizeof(char), autonFile);
-    }
+    signed char* write = (signed char*) malloc(5);
     for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
         printf("Recording state %d to file %s...\n", i, filename);
-        signed char write[5] = {states[i].spd, states[i].horizontal, states[i].turn, states[i].sht, states[i].lift};
-        fwrite(write, sizeof(char), sizeof(write) / sizeof(char), autonFile);
+        write[0] = states[i].spd;
+        write[1] = states[i].horizontal;
+        write[2] = states[i].turn;
+        write[3] = states[i].sht;
+        write[4] = states[i].lift;
+
+        printf("Save State %d, Speed: %d %d %d %d %d\n", i, write[0], write[1], write[2], write[3], write[4]);
+        for (int j = 0; j < 5; j++) {
+            fwrite(write + j, sizeof(char), sizeof(char), autonFile);
+        }
         delay(10);
     }
     fclose(autonFile);
@@ -290,20 +293,19 @@ void loadAuton(int autonSlot) {
     }
 
     fseek(autonFile, 0, SEEK_SET);
-    char name[LCD_MESSAGE_MAX_LENGTH+1];
-    memset(name, 0, sizeof(name));
-    if(autonSlot != MAX_AUTON_SLOTS + 1){
-        fread(name, sizeof(char), sizeof(name) / sizeof(char), autonFile);
-    }
+    signed char* read = (signed char*) malloc(5);
     for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
         printf("Loading state %d from file %s...\n", i, filename);
-        char read[5] = {0, 0, 0, 0, 0};
-        fread(read, sizeof(char), sizeof(read) / sizeof(char), autonFile);
+        for (int j = 0; j < 5; j++) {
+            fseek(autonFile, 5 * i + j, SEEK_SET);
+            fread(read + j, sizeof(char), sizeof(char), autonFile);
+        }
         states[i].spd = (signed char) read[0];
-        states[i].horizontal = read[1];
+        states[i].horizontal = (signed char) read[1];
         states[i].turn = (signed char) read[2];
         states[i].sht = (signed char) read[3];
         states[i].lift = (signed char) read[4];
+        printf("Load State %d, Speed: %d %d %d %d %d\n", i, states[i].spd, states[i].horizontal, states[i].turn, states[i].sht, states[i].lift);
         delay(10);
     }
     fclose(autonFile);
@@ -311,8 +313,7 @@ void loadAuton(int autonSlot) {
     lcdSetText(LCD_PORT, 1, "Loaded auton!");
     if(autonSlot != MAX_AUTON_SLOTS + 1){
         printf("Not doing programming skills, loaded from slot %d.\n", autonSlot);
-        //lcdPrint(LCD_PORT,   2, "Slot: %d", autonSlot);
-        lcdPrint(LCD_PORT, 2, "%s", name);
+        lcdPrint(LCD_PORT, 2, "Slot: %d", autonSlot);
     } else {
         printf("Doing programming skills, loaded from section %d.\n", progSkills);
         lcdSetText(LCD_PORT, 2, "Skills Section: 1");
@@ -330,7 +331,8 @@ void playbackAuton(int flipped) { //must load autonomous first!
     if (autonLoaded == -1 /* nothing in memory */) {
         printf("No autonomous loaded, entering loadAuton()\n");
         lcdSetText(LCD_PORT, 1, "Load from?");
-        loadAuton(selectAuton());
+        //loadAuton(selectAuton());
+        loadAuton(1);
     }
     if(autonLoaded == 0) {
         printf("autonLoaded = 0, doing nothing.\n");
@@ -340,7 +342,7 @@ void playbackAuton(int flipped) { //must load autonomous first!
     lcdSetText(LCD_PORT, 1, "Playing back...");
     lcdSetText(LCD_PORT, 2, "");
     lcdSetBacklight(LCD_PORT, true);
-    int file=0;
+    int file = 0;
     do{
         FILE* nextFile = NULL;
         lcdPrint(LCD_PORT, 2, "File: %d", file+1);
@@ -351,12 +353,12 @@ void playbackAuton(int flipped) { //must load autonomous first!
             nextFile = fopen(filename, "r");
         }
         for(int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
-            printf("Playing back state %d...\n", i);
             spd = states[i].spd;
             horizontal = states[i].horizontal;
             turn = flipped * states[i].turn;
             sht = states[i].sht;
             lift = states[i].lift;
+            printf("Playback State: %d, Speed: %d %d %d %d %d\n", i, states[i].spd, states[i].horizontal, states[i].turn, states[i].sht, states[i].lift);
             if (joystickGetDigital(1, 7, JOY_UP) && !isOnline()) {
                 printf("Playback manually cancelled.\n");
                 lcdSetText(LCD_PORT, 1, "Cancelled playback.");
