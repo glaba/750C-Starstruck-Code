@@ -73,7 +73,7 @@ void recordAuton() {
         lightState = !lightState;
         recordJoyInfo();
         states[i].spd = spd;
-        states[i].horizontal = (signed char)((int)(i * 2) % 255 - 127);//horizontal;
+        states[i].horizontal = horizontal;
         states[i].turn = turn;
         states[i].sht = sht;
         states[i].lift = lift;
