@@ -14,7 +14,7 @@
 /**
  * Number of seconds the autonomous period lasts.
  */
-#define AUTON_TIME 5
+#define AUTON_TIME 15
 
 /**
  * Number of seconds the programming skills challenge lasts.
