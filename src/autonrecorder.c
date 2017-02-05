@@ -109,7 +109,7 @@ void saveAuton() {
     lcdSetText(LCD_PORT, 2, "");
     int autonSlot;
     if(progSkills == 0) {
-        autonSlot = 1;
+        autonSlot = selectAuton();
     } else {
         printf("Currently in the middle of a programming skills run.\n");
         autonSlot = MAX_AUTON_SLOTS + 1;
@@ -146,7 +146,7 @@ void saveAuton() {
         delay(1000);
         return;
     }
-    signed char* write = (signed char*) malloc(5);
+    signed char write[5];
     for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
         printf("Recording state %d to file %s...\n", i, filename);
         write[0] = states[i].spd;
@@ -293,7 +293,7 @@ void loadAuton(int autonSlot) {
     }
 
     fseek(autonFile, 0, SEEK_SET);
-    signed char* read = (signed char*) malloc(5);
+    signed char read[5];
     for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
         printf("Loading state %d from file %s...\n", i, filename);
         for (int j = 0; j < 5; j++) {
@@ -355,7 +355,7 @@ void playbackAuton(int flipped) { //must load autonomous first!
         for(int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
             spd = states[i].spd;
             horizontal = states[i].horizontal;
-            turn = flipped * states[i].turn;
+            turn = states[i].turn;
             sht = states[i].sht;
             lift = states[i].lift;
             printf("Playback State: %d, Speed: %d %d %d %d %d\n", i, states[i].spd, states[i].horizontal, states[i].turn, states[i].sht, states[i].lift);

@@ -60,13 +60,19 @@ void recordJoyInfo() {
 	horizontal = pow(joystickGetAnalog(1, 4) / 127.0, 4) * 127 * joystickGetAnalog(1, 4) / abs(joystickGetAnalog(1, 4));
 	turn = joystickGetAnalog(1, 1);
 
+  spd = IGNORE_LOW_VAL(spd);
+  horizontal = IGNORE_LOW_VAL(horizontal);
+  turn = IGNORE_LOW_VAL(turn);
+
 	if (joystickGetDigital(1, 5, JOY_UP) == true || joystickGetDigital(2, 5, JOY_UP) == true) {
-		sht = -127;
-	} else if (joystickGetDigital(1, 5, JOY_DOWN) == true || joystickGetDigital(2, 5, JOY_DOWN) == true) {
 		sht = 127;
+	} else if (joystickGetDigital(1, 5, JOY_DOWN) == true || joystickGetDigital(2, 5, JOY_DOWN) == true) {
+		sht = -127;
 	} else if(joystickGetDigital(1, 8, JOY_DOWN) == true ||joystickGetDigital(2, 8, JOY_DOWN) == true) {
-		sht = -27;
-	} else {
+		sht = 27;
+  } else if(joystickGetDigital(1, 8, JOY_UP) == true || joystickGetDigital(2, 8, JOY_UP) == true) {
+    sht = -27;
+  } else {
 		sht = 0;
 	}
 
@@ -92,21 +98,14 @@ void moveRobot() {
  * Runs the operator control loop
  */
 void operatorControl() {
-	loadAuton(1);
-	if (autonLoaded >= 0) 
-		playbackAuton(1);
-	else {
-		recordAuton();
-		saveAuton();
-	}
 	while (1) {
 		if (joystickGetDigital(1, 7, JOY_RIGHT) && !isOnline()) {
 			recordAuton();
 			saveAuton();
 		}
 		if (joystickGetDigital(1, 7, JOY_LEFT)) {
-			loadAuton(1);
-			playbackAuton(1);
+			loadAuton(selectAuton());
+			playbackAuton();
 		}
 		updateLCDMenu(20);
 		recordJoyInfo();

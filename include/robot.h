@@ -17,6 +17,7 @@ extern "C" {
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
+#define IGNORE_LOW_VAL(V) ((((V) > -10) && ((V) < 10)) ? (0) : (V))
 
 /**
  * Definition for the front left drive motor

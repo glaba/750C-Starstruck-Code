@@ -1,7 +1,7 @@
 /** @file lcdDisplay.c
  * @brief File for LCD display functons and constants
  *
- * Contains functions and variables that describe the current LCD state and draw new portions of the LCD menu 
+ * Contains functions and variables that describe the current LCD state and draw new portions of the LCD menu
  *
  */
 
@@ -10,7 +10,7 @@
 
 /**
  * The first level of menu items that show up on the LCD after the splash screen
- */ 
+ */
 menu_item* initialMenuItems;
 
 /**
@@ -20,31 +20,31 @@ int menuTimeout = 0;
 
 /**
  * The a pointer to the first menu in the layer of menus currently displaying on the LCD screen
- */ 
+ */
 menu_item* currentMenus;
 
 /**
  * The index of the current menu in the currentMenus array
- */ 
+ */
 int currentMenuIndex = 0;
 
 /**
  * The number of items in the current level of menus
- */ 
+ */
 int numMenuItems;
 
 /**
- * The previous value for the Left LCD button 
+ * The previous value for the Left LCD button
  */
 int prevLCDLeft = 0;
 
 /**
- * The previous value for the Right LCD button 
+ * The previous value for the Right LCD button
  */
 int prevLCDRight = 0;
 
 /**
- * The previous value for the Center LCD button 
+ * The previous value for the Center LCD button
  */
 int prevLCDCenter = 0;
 
@@ -91,7 +91,7 @@ void runMotorUntilPress(int index) {
 	lcdSetText(LCD_PORT, 2, "Speed: 127");
 
 	motorSet(index + 1, 127);
-	
+
 	while (lcdReadButtons(LCD_PORT) == 0) {
 		delay(20);
 	}
@@ -109,7 +109,7 @@ void lcdPlaybackAuton(int index) {
 
 	lcdSetText(LCD_PORT, 1, "Load from?");
 	loadAuton(selectAuton());
-	playbackAuton(autonFlipped);
+	playbackAuton();
 }
 
 /**
@@ -120,7 +120,7 @@ void initLCDMenu() {
 
 	menu_item* motorTestMenus;
 	motorTestMenus = malloc(10 * sizeof(menu_item));
-	
+
 	menu_item batteryMenu = { .isFunction = true, .name = "Battery Info", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &showBatteryInfo };
 	menu_item motorTest = { .isFunction = false, .name = "Motor Testing", .description = "Run chosen motor(s)", .numChildren = 10, .children = motorTestMenus, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = 0 };
 	menu_item recordAuton = { .isFunction = true, .name = "Record Auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &recordAutonWrapper };
@@ -200,7 +200,7 @@ void updateLCDMenu(int dt) {
 		secondChar = ' ';
 	}
 
-	int totalNumSpaces = LCD_MESSAGE_MAX_LENGTH - 2 - strlen(curMenu.name); 
+	int totalNumSpaces = LCD_MESSAGE_MAX_LENGTH - 2 - strlen(curMenu.name);
 	int line1Padding1 = totalNumSpaces / 2 + (totalNumSpaces % 2 != 0);
 
 	char output[LCD_MESSAGE_MAX_LENGTH + 1];

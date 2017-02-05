@@ -69,17 +69,14 @@ typedef struct joyState {
     * Forward/backward speed of the drive motors.
     */
     signed char spd;
-
-    signed char turn;
     /**
     * Turning speed of the drive motors.
     */
-    signed char horizontal;
+    signed char turn;
     /**
     * Horizontal motion
     */
-
-
+    signed char horizontal;
     /**
     * Speed of the dumper motors.
     */
@@ -145,6 +142,6 @@ void loadAuton(int autonFile);
  *
  * @param flipped -1 if the autonomous should be flipped over the y axis (for the opposite starting tile), 1 otherwise
  */
-void playbackAuton(int flipped);
+void playbackAuton();
 
 #endif
