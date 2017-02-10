@@ -280,7 +280,7 @@ void uploadAutonToComputer(int slot) {
                 fseek(autonFile, 5 * i + j, SEEK_SET);
                 fread(read + j, sizeof(char), sizeof(char), autonFile);
             }
-            printf("%c%c%c%c%c", read[0], read[1], read[2], read[3], read[4], read[5]);
+            printf("%c%c%c%c%c", read[0], read[1], read[2], read[3], read[4]);
             delay(10);
         }
         printf("----------");
