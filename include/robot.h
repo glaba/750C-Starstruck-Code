@@ -91,10 +91,10 @@ inline void setPincerMotors(int pincer){
  */
 inline void setLiftMotors(int spd) {
 	motorSet(LIFT_TOP_Y_MOTOR, spd * MOTOR_SPEED);
-	motorSet(LIFT_MIDDLE_LEFT_MOTOR, spd * MOTOR_SPEED);
-	motorSet(LIFT_MIDDLE_RIGHT_MOTOR, -spd * MOTOR_SPEED);
- 	motorSet(LIFT_BOTTOM_LEFT_MOTOR, spd * MOTOR_SPEED);
-	motorSet(LIFT_BOTTOM_RIGHT_MOTOR,  -spd * MOTOR_SPEED);
+	motorSet(LIFT_MIDDLE_LEFT_MOTOR, -spd * MOTOR_SPEED);
+	motorSet(LIFT_MIDDLE_RIGHT_MOTOR, spd * MOTOR_SPEED);
+ 	motorSet(LIFT_BOTTOM_LEFT_MOTOR, -spd * MOTOR_SPEED);
+	motorSet(LIFT_BOTTOM_RIGHT_MOTOR,  spd * MOTOR_SPEED);
 }
 
 #ifdef __cplusplus
