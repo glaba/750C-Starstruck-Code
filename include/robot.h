@@ -8,7 +8,7 @@
 #define ROBOT_H_
 
 #include <API.h>
-#include <Math.h>
+#include <math.h>
 
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
@@ -81,7 +81,7 @@ inline void setDriveMotors(int forward, int horizontal, int turn) {
  * @param pincer sets the power to the pincer motors
  */
 inline void setPincerMotors(int pincer){
-  motorSet(PINCER_Y_MOTOR, pincer);
+  motorSet(PINCER_Y_MOTOR, -pincer);
 }
 
 /**

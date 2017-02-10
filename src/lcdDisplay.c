@@ -108,15 +108,29 @@ void lcdPlaybackAuton(int index) {
 	delay(500);
 
 	lcdSetText(LCD_PORT, 1, "Load from?");
-	loadAuton(selectAuton());
+	loadAuton(selectAuton(false));
 	playbackAuton();
+}
+
+/**
+ * Downloads an autonomous routine from the computer and prompts the user on which slot to save it to
+ */
+void downloadAutonFromComputerWrapper() {
+	downloadAutonFromComputer(selectAuton(true));
+}
+
+/**
+ * Uploads an autonomous routine to the computer and prompts the user on which slot to upload from
+ */
+void uploadAutonToComputerWrapper() {
+	uploadAutonToComputer(selectAuton(true));
 }
 
 /**
  * Initializes the menus used in this program
  */
 void initLCDMenu() {
-	initialMenuItems = (menu_item*) malloc(4 * sizeof(menu_item));
+	initialMenuItems = (menu_item*) malloc(6 * sizeof(menu_item));
 
 	menu_item* motorTestMenus;
 	motorTestMenus = malloc(10 * sizeof(menu_item));
@@ -125,7 +139,9 @@ void initLCDMenu() {
 	menu_item motorTest = { .isFunction = false, .name = "Motor Testing", .description = "Run chosen motor(s)", .numChildren = 10, .children = motorTestMenus, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = 0 };
 	menu_item recordAuton = { .isFunction = true, .name = "Record Auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &recordAutonWrapper };
 	menu_item loadAuton = { .isFunction = true, .name = "Playback Auton", .description = "", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &lcdPlaybackAuton };
-
+	menu_item downloadAuton = { .isFunction = true, .name = "Download Auton", .description = "Load from computer", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &downloadAutonFromComputerWrapper };
+	menu_item uploadAuton = { .isFunction = true, .name = "Upload Auton", .description = "Save to computer", .numChildren = 0, .children = 0, .numParents = 0, .parentIndex = 0, .parent = 0, .runFunction = &uploadAutonToComputerWrapper };
+	
 	for (int i = 0; i < 10; i++) {
 		char* name = malloc((LCD_MESSAGE_MAX_LENGTH - 2 + 1) * sizeof(char));
 		snprintf(name, LCD_MESSAGE_MAX_LENGTH - 2 + 1, "Port %d", i + 1);
@@ -138,9 +154,11 @@ void initLCDMenu() {
 	initialMenuItems[1] = motorTest;
 	initialMenuItems[2] = recordAuton;
 	initialMenuItems[3] = loadAuton;
+	initialMenuItems[4] = downloadAuton;
+	initialMenuItems[5] = uploadAuton;
 
 	currentMenus = initialMenuItems;
-	numMenuItems = 4;
+	numMenuItems = 6;
 }
 
 /**

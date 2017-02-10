@@ -104,7 +104,7 @@ void operatorControl() {
 			saveAuton();
 		}
 		if (joystickGetDigital(1, 7, JOY_LEFT)) {
-			loadAuton(selectAuton());
+			loadAuton(selectAuton(false));
 			playbackAuton();
 		}
 		updateLCDMenu(20);

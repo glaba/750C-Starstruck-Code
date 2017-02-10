@@ -47,7 +47,7 @@ void initAutonRecorder() {
     printf("Completed initialization of autonomous recorder.\n");
     lcdSetText(LCD_PORT, 1, "Init-ed recorder!");
     lcdSetText(LCD_PORT, 2, "");
-    autonLoaded = -1;
+    autonLoaded = 0;
     progSkills = 0;
 }
 
@@ -109,21 +109,26 @@ void saveAuton() {
     lcdSetText(LCD_PORT, 2, "");
     int autonSlot;
     if(progSkills == 0) {
-        autonSlot = selectAuton();
+        autonSlot = selectAuton(false);
     } else {
         printf("Currently in the middle of a programming skills run.\n");
         autonSlot = MAX_AUTON_SLOTS + 1;
     }
     if(autonSlot == 0) {
         printf("Not saving this autonomous!\n");
+        delay(1000);
         return;
     }
     lcdSetText(LCD_PORT, 1, "Saving auton...");
     char filename[AUTON_FILENAME_MAX_LENGTH];
-    if(autonSlot != MAX_AUTON_SLOTS + 1) {
+    if(autonSlot != MAX_AUTON_SLOTS + 1 && autonSlot > 0) {
         printf("Not doing programming skills, recording to slot %d.\n",autonSlot);
         snprintf(filename, sizeof(filename)/sizeof(char), "a%d", autonSlot);
         lcdPrint(LCD_PORT, 2, "Slot: %d", autonSlot);
+    } else if (autonSlot < 0) {
+        printf("Invalid autonomous selection.");
+        delay(1000);
+        return;
     } else {
         printf("Doing programming skills, recording to section %d.\n", progSkills);
         snprintf(filename, sizeof(filename)/sizeof(char), "p%d", progSkills);
@@ -183,12 +188,111 @@ void saveAuton() {
 }
 
 /**
- * Gets the autonomous selection from the LCD buttons
+ * Downloads a 15 second autonomous portion from the computer through the serial monitor
  *
- * @return the autonomous selected (slot number)
+ * @param slot A number from 1 - 10 for a regular autonomous routine, or a number from -1 to -4 for a programming skills slot
  */
-int selectAuton() {
+void downloadAutonFromComputer(int slot) {
+    motorStopAll();
+
+    char filename[AUTON_FILENAME_MAX_LENGTH + 1];
+    if (slot >= 1 && slot <= 10) {
+        snprintf(filename, sizeof(filename), "a%d", slot);
+    } else if (slot <= -1 && slot >= -4) {
+        snprintf(filename, sizeof(filename), "p%d", -slot - 1);
+    }
+
+    FILE* autonFile = fopen(filename, "w");
+    if (autonFile == NULL) {
+        printf("Writing to autonomous file failed. \n");
+        lcdSetText(LCD_PORT, 1, "Failed to open!");
+        return;
+    } else {
+        printf("Please input the autonomous file fully in the serial input \n");
+        lcdSetText(LCD_PORT, 1, "Waiting for input...");
+
+        signed char read[5] = {0, 0, 0, 0, 0};
+        for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
+            lcdPrint(LCD_PORT, 2, "Pull state %d", i);
+            for (int j = 0; j < 5; j++) {
+                read[j] = getchar();
+                if (read[j] == -1) {//(fread(read + j, sizeof(char), sizeof(char), stdin) == 0) {
+                    printf("Not enough input for a full autonomous file, ending at state %d", i);
+                    fclose(autonFile);
+                    return;
+                }
+            }
+            states[i].spd = (signed char) read[0];
+            states[i].horizontal = (signed char) read[1];
+            states[i].turn = (signed char) read[2];
+            states[i].sht = (signed char) read[3];
+            states[i].lift = (signed char) read[4];
+            delay(20);
+        }
+
+        lcdPrint(LCD_PORT, 1, "Writing to file...");
+        lcdSetText(LCD_PORT, 2, "");
+
+        signed char write[5];
+        for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
+            printf("Recording state %d to file %s...\n", i, filename);
+            write[0] = states[i].spd;
+            write[1] = states[i].horizontal;
+            write[2] = states[i].turn;
+            write[3] = states[i].sht;
+            write[4] = states[i].lift;
+
+            printf("Save State %d, Speed: %d %d %d %d %d\n", i, write[0], write[1], write[2], write[3], write[4]);
+            for (int j = 0; j < 5; j++) {
+                fwrite(write + j, sizeof(char), sizeof(char), autonFile);
+            }
+            delay(10);
+        }
+    }
+}
+
+/**
+ * Uploads a 15 second autonomous portion to the computer through the serial monitor
+ *
+ * @param slot A number from 1 - 10 for a regular autonomous routine, or a number from -1 to -4 for a programming skills slot
+ */
+void uploadAutonToComputer(int slot) {
+    char filename[AUTON_FILENAME_MAX_LENGTH + 1];
+    if (slot >= 1 && slot <= 10) {
+        snprintf(filename, sizeof(filename), "a%d", slot);
+    } else if (slot <= -1 && slot >= -4) {
+        snprintf(filename, sizeof(filename), "p%d", -slot - 1);
+    }
+
+    FILE* autonFile = fopen(filename, "r");
+    if (autonFile == NULL) {
+        printf("Reading from autonomous file failed. \n");
+        lcdSetText(LCD_PORT, 1, "Failed to open!");
+        return;
+    } else {
+        lcdSetText(LCD_PORT, 1, "Uploading...");
+        lcdSetText(LCD_PORT, 2, "");
+        printf("Sending file...");
+        printf("----------");
+        for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
+            printf("%c%c%c%c%c", states[i].spd, states[i].horizontal, states[i].turn, states[i].sht, states[i].lift);
+            delay(10);
+        }
+        printf("----------");
+        printf("File ended.");
+    }
+}
+
+/**
+ * Gets the autonomous selection from the LCD buttons
+ * 
+ * @param allowProgSkillSection Allows the user to select a specific programming skills section slot if this is true
+ *
+ * @return the autonomous selected (slot number), or if allowProgSkillSection is true and a programming skills is selected, the negative of the programming skill section number from -1 to -4
+ */
+int selectAuton(int allowProgSkillSection) {
     printf("Waiting for file selection...\n");
+    lcdSetText(LCD_PORT, 1, "Select file");
     lcdSetText(LCD_PORT, 2, "None");
 
     int curSlot = 0;
@@ -227,7 +331,32 @@ int selectAuton() {
 
         delay(20);
     }
+    delay(500);
 
+    prevLCDLeft = 0;
+    prevLCDRight = 0;
+    int curProgSkillSection = 0;
+    if ((curSlot == MAX_AUTON_SLOTS + 1) && allowProgSkillSection) {
+        while ((lcdReadButtons(LCD_PORT) & LCD_BTN_CENTER) == 0) {
+            lcdSetText(LCD_PORT, 1, "Prog. Skills Slot");
+            
+            if (((lcdReadButtons(LCD_PORT) & LCD_BTN_RIGHT) != 0) && prevLCDRight == 0) {
+                curProgSkillSection = (curProgSkillSection + 1) % (PROGSKILL_TIME / AUTON_TIME);
+            } else if (((lcdReadButtons(LCD_PORT) & LCD_BTN_LEFT) != 0) && prevLCDLeft == 0) {
+                curProgSkillSection--;
+                if (curProgSkillSection == -1) {
+                    curProgSkillSection = 3;
+                }
+            }
+
+            lcdPrint(LCD_PORT, 1, "Prog. Skills Part %d", curProgSkillSection + 1);
+
+            delay(50);
+        }
+        return -curProgSkillSection - 1;
+    }
+
+    delay(500);
     return curSlot;
 }
 
@@ -262,6 +391,9 @@ void loadAuton(int autonSlot) {
         printf("Autonomous %d is already loaded.\n", autonSlot);
         lcdSetText(LCD_PORT, 1, "Loaded auton!");
         lcdPrint(LCD_PORT,   2, "Slot: %d", autonSlot);
+        return;
+    } else if (autonSlot < 0) {
+        printf("Invalid autonomous selection");
         return;
     }
     printf("Loading autonomous from slot %d...\n", autonSlot);
@@ -327,13 +459,6 @@ void loadAuton(int autonSlot) {
  * @param flipped -1 if the autonomous should be flipped over the y axis (for the opposite starting tile), 1 otherwise
  */
 void playbackAuton(int flipped) { //must load autonomous first!
-    lcdSetText(LCD_PORT, 1, "Test");
-    if (autonLoaded == -1 /* nothing in memory */) {
-        printf("No autonomous loaded, entering loadAuton()\n");
-        lcdSetText(LCD_PORT, 1, "Load from?");
-        //loadAuton(selectAuton());
-        loadAuton(1);
-    }
     if(autonLoaded == 0) {
         printf("autonLoaded = 0, doing nothing.\n");
         return;
@@ -369,13 +494,18 @@ void playbackAuton(int flipped) { //must load autonomous first!
             moveRobot();
             if(autonLoaded == MAX_AUTON_SLOTS + 1 && file < PROGSKILL_TIME/AUTON_TIME - 1){
                 printf("Loading state %d from file %s...\n", i, filename);
+
                 char read[5] = {0, 0, 0, 0, 0};
-                fread(read, sizeof(char), sizeof(read) / sizeof(char), nextFile);
+                for (int j = 0; j < 5; j++) {
+                    fseek(nextFile, 5 * i + j, SEEK_SET);
+                    fread(read + j, sizeof(char), sizeof(char), nextFile);
+                }
                 states[i].spd = (signed char) read[0];
                 states[i].horizontal = (signed char) read[1];
                 states[i].turn = (signed char) read[2];
                 states[i].sht = (signed char) read[3];
                 states[i].lift = (signed char) read[4];
+                printf("Load State %d, Speed: %d %d %d %d %d\n", i, states[i].spd, states[i].horizontal, states[i].turn, states[i].sht, states[i].lift);
             }
             delay(1000 / JOY_POLL_FREQ);
         }

@@ -43,6 +43,6 @@ void initialize() {
 	initLCDMenu();
 	lcdSetText(LCD_PORT, 1, "Load from?");
 	initAutonRecorder();
-	loadAuton(selectAuton());
+	loadAuton(selectAuton(false));
 	delay(500);
 }

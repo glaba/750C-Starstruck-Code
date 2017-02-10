@@ -121,11 +121,27 @@ void initAutonRecorder();
 void recordAuton();
 
 /**
- * Gets the autonomous selection from the LCD buttons
+ * Downloads a 15 second autonomous portion from the computer through the serial monitor
  *
- * @return the autonomous selected (slot number)
+ * @param slot A number from 1 - 10 for a regular autonomous routine, or a number from -1 to -4 for a programming skills slot
  */
-int selectAuton();
+void downloadAutonFromComputer(int slot);
+
+/**
+ * Uploads a 15 second autonomous portion to the computer through the serial monitor
+ *
+ * @param slot A number from 1 - 10 for a regular autonomous routine, or a number from -1 to -4 for a programming skills slot
+ */
+void uploadAutonToComputer(int slot);
+
+/**
+ * Gets the autonomous selection from the LCD buttons
+ * 
+ * @param allowProgSkillSection Allows the user to select a specific programming skills section slot if this is true
+ *
+ * @return the autonomous selected (slot number), or if allowProgSkillSection is true and a programming skills is selected, the negative of the programming skill section number from -1 to -4
+ */
+int selectAuton(int allowProgSkillSection);
 
 /**
  * Saves contents of the states array to a file in flash memory for later playback.
