@@ -35,7 +35,6 @@ extern "C" {
  * Definition for the back right drive motor
  */
 #define BACK_RIGHT_MOTOR 2
-
 /**
 * Definition for the right top lift motor
 */
@@ -56,9 +55,10 @@ extern "C" {
 * Definition for the right bottom lift motor
 */
 #define LIFT_BOTTOM_RIGHT_MOTOR 5
-
+/**
+ * Definition for the pincer Y cable motor port
+ */
 #define PINCER_Y_MOTOR 6
-
 #define MOTOR_SPEED 127
 #define LCD_PORT uart1
 
@@ -81,7 +81,7 @@ inline void setDriveMotors(int forward, int horizontal, int turn) {
  * @param pincer sets the power to the pincer motors
  */
 inline void setPincerMotors(int pincer){
-  motorSet(PINCER_Y_MOTOR, -pincer);
+  motorSet(PINCER_Y_MOTOR, pincer);
 }
 
 /**
@@ -90,11 +90,11 @@ inline void setPincerMotors(int pincer){
  * @param spd sets the power to the lift motors on a continuum from -1 to 1
  */
 inline void setLiftMotors(int spd) {
-	motorSet(LIFT_TOP_Y_MOTOR, spd * MOTOR_SPEED);
-	motorSet(LIFT_MIDDLE_LEFT_MOTOR, -spd * MOTOR_SPEED);
-	motorSet(LIFT_MIDDLE_RIGHT_MOTOR, spd * MOTOR_SPEED);
- 	motorSet(LIFT_BOTTOM_LEFT_MOTOR, -spd * MOTOR_SPEED);
-	motorSet(LIFT_BOTTOM_RIGHT_MOTOR,  spd * MOTOR_SPEED);
+	motorSet(LIFT_TOP_Y_MOTOR, -spd * MOTOR_SPEED);
+	motorSet(LIFT_MIDDLE_LEFT_MOTOR, spd * MOTOR_SPEED);
+	motorSet(LIFT_MIDDLE_RIGHT_MOTOR, -spd * MOTOR_SPEED);
+ 	motorSet(LIFT_BOTTOM_LEFT_MOTOR, spd * MOTOR_SPEED);
+	motorSet(LIFT_BOTTOM_RIGHT_MOTOR, -spd * MOTOR_SPEED);
 }
 
 #ifdef __cplusplus

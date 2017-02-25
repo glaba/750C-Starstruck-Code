@@ -272,8 +272,8 @@ void uploadAutonToComputer(int slot) {
     } else {
         lcdSetText(LCD_PORT, 1, "Uploading...");
         lcdSetText(LCD_PORT, 2, "");
-        printf("Sending file...");
-        printf("----------");
+        printf("Sending file...\n");
+        printf("----------\n");
         char read[5] = {0, 0, 0, 0, 0};
         for (int i = 0; i < AUTON_TIME * JOY_POLL_FREQ; i++) {
             for (int j = 0; j < 5; j++) {
@@ -281,10 +281,10 @@ void uploadAutonToComputer(int slot) {
                 fread(read + j, sizeof(char), sizeof(char), autonFile);
             }
             printf("%c%c%c%c%c", read[0], read[1], read[2], read[3], read[4]);
-            delay(10);
+            delay(20);
         }
-        printf("----------");
-        printf("File ended.");
+        printf("----------\n");
+        printf("File ended.\n");
         fclose(autonFile);
     }
 }

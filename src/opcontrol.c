@@ -69,10 +69,10 @@ void recordJoyInfo() {
 	} else if (joystickGetDigital(1, 5, JOY_DOWN) == true || joystickGetDigital(2, 5, JOY_DOWN) == true) {
 		sht = -127;
 	} else if(joystickGetDigital(1, 8, JOY_DOWN) == true ||joystickGetDigital(2, 8, JOY_DOWN) == true) {
-		sht = 27;
-  } else if(joystickGetDigital(1, 8, JOY_UP) == true || joystickGetDigital(2, 8, JOY_UP) == true) {
-    sht = -27;
-  } else {
+		sht = -40;
+  	} else if(joystickGetDigital(1, 8, JOY_UP) == true || joystickGetDigital(2, 8, JOY_UP) == true) {
+    	sht = 40;
+  	} else {
 		sht = 0;
 	}
 

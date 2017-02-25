@@ -116,6 +116,7 @@ void lcdPlaybackAuton(int index) {
  * Downloads an autonomous routine from the computer and prompts the user on which slot to save it to
  */
 void downloadAutonFromComputerWrapper() {
+	delay(500);
 	downloadAutonFromComputer(selectAuton(true));
 }
 
@@ -123,6 +124,7 @@ void downloadAutonFromComputerWrapper() {
  * Uploads an autonomous routine to the computer and prompts the user on which slot to upload from
  */
 void uploadAutonToComputerWrapper() {
+	delay(500);
 	uploadAutonToComputer(selectAuton(true));
 }
 
